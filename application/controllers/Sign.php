@@ -2,12 +2,15 @@
 defined('BASEPATH') or die('No direct script access allowed');
 
 class Sign extends CI_Controller{
+	private $redis = null;
 	public function __construct()
 	{
 		parent::__construct();
 		$this->load->model('sign_model');
 		$this->load->helper('url_helper');
 		$this->load->library('LB_base_lib');
+		$this->redis = new Redis();
+		$this->redis->connect('127.0.0.1',6379);
 	}
 
 	
@@ -141,6 +144,16 @@ class Sign extends CI_Controller{
 			$this->sign_model->update_signin($last_signin_ip,time(),$user->username);
 			
 			//redis
+			$key = md5(mt_rand());
+			setcookie('ec_id',$key,0,'/','localhost');
+			$_COOKIE['ec_id'] = $key;
+			$value = array(
+				"uid"=>$user->uid,
+				"username"=>$user->username,
+				"email"=>$user->email
+				);
+			$expire = 1800;
+			$test = $this->redis->setex($key,$expire,json_encode($value));
 
 		    $this->lb_base_lib->echo_json_result(1,"signin success");
 		}
@@ -154,6 +167,8 @@ class Sign extends CI_Controller{
 	public function signout_redis()
 	{
 		//redis
+		$this->redis->del($_COOKIE['ec_id']);
+
 	}
 
 	//修改密码
