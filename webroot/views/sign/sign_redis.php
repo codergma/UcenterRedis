@@ -308,9 +308,9 @@ $(document).ready(function()
             success:function(result){
                 if (true == result.num)
                 {
-                    window.location.href = "/portal/index_redis";
+                    window.location.href = "/portal/index";
                 }else{
-                    alert('登录失败');
+                    alert(result.msg);
                 };
             }
         });

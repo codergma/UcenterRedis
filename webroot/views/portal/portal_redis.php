@@ -72,7 +72,7 @@
 <script type="text/javascript">
 	$(document).ready(function(){
 		$('#signout').bind('click',function(){
-			var url = '/sign/signout_session';
+			var url = '/sign/signout_redis';
 			$.ajax({
 				url:url,
 				type:'post',
@@ -80,7 +80,7 @@
 				success:function(result){
 					if (true == result.num)
 					{
-						window.location.href = '/sign/index_redis';
+						window.location.href = '/sign/index';
 					};
 				}
 			});

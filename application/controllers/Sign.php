@@ -10,19 +10,17 @@ class Sign extends CI_Controller{
 		$this->load->helper('url_helper');
 		$this->load->library('LB_base_lib');
 		$this->redis = new Redis();
-		$this->redis->connect('127.0.0.1',6379);
+		$this->redis->connect(REDIS_ADDR,REDIS_PORT);
 	}
 
-	
-
-	public function index_redis()
+	public function index()
 	{
 		// 检查是否已经登陆
 		$is_signin = $this->check_signin_by_redis();
 		
 		if ($is_signin) 
 		{
-		    header('location:/portal/index_redis');
+		    header('location:/portal/index');
             return;
 		}
 
@@ -124,20 +122,29 @@ class Sign extends CI_Controller{
 	//登录接口
 	public function signin_redis()
 	{
+
 		$login_username = addslashes(trim($this->input->post('login_username')));
 		$login_passwd   = addslashes(trim($this->input->post('login_passwd')));
-		//根据用户名获取数据库中用户信息
 		$user = $this->sign_model->get_user_by_username($login_username);
-		//用户名不存在
+
+		//检查用户名是否存在
 		if(empty($user))
 		{
 	      $this->lb_base_lib->echo_json_result(-1,"username dose not exists");
-
 		} 
+		//检查登录错误次数
+		$fail_num = $this->get_fail_count($login_username);
+		if ($fail_num >= MAX_ERR_NUM)
+		{
+			$this->set_fail_count($login_username);
+			$ttl = $this->get_ttl($login_username);
+			$ttl = ceil($ttl/60);
+			$this->lb_base_lib->echo_json_result(-1,"Fail too many times, please login again after {$ttl} minutes "); 
+		}
 
 			
 		$login_passwd = md5(md5($login_passwd).$user->salt);
-		if ($login_passwd == $user->password)//登录成功
+		if ($login_passwd == $user->password)
 		{
 			//更新最后登录ip
 			$last_signin_ip = $this->lb_base_lib->real_ip();
@@ -145,21 +152,22 @@ class Sign extends CI_Controller{
 			
 			//redis
 			$key = md5(mt_rand());
-			setcookie('ec_id',$key,0,'/','localhost');
-			$_COOKIE['ec_id'] = $key;
+			$test = setcookie('uid',$key,time()+EXPIRE,'/','');
+			$_COOKIE['uid'] = $key;
 			$value = array(
 				"uid"=>$user->uid,
 				"username"=>$user->username,
 				"email"=>$user->email
 				);
-			$expire = 1800;
-			$test = $this->redis->setex($key,$expire,json_encode($value));
+			$test = $this->redis->setex($key,EXPIRE,json_encode($value));
 
 		    $this->lb_base_lib->echo_json_result(1,"signin success");
 		}
-		else//登陆失败
+		else
 		{
-		    $this->lb_base_lib->echo_json_result(-1,"username or password was wrong");
+			$this->set_fail_count($login_username);
+			$count = 5 - $this->get_fail_count($login_username);
+		    $this->lb_base_lib->echo_json_result(-1," 还剩{$count}次机会");
 		}
 	}
 
@@ -167,7 +175,11 @@ class Sign extends CI_Controller{
 	public function signout_redis()
 	{
 		//redis
-		$this->redis->del($_COOKIE['ec_id']);
+		if (isset($_COOKIE['uid']))
+		{
+			$this->redis->del($_COOKIE['uid']);
+			$this->lb_base_lib->echo_json_result(1,"signout success");
+		}
 
 	}
 
@@ -202,12 +214,55 @@ class Sign extends CI_Controller{
 	}
 
 	
-	//第二种方法：根据session判断用户是否在线
+	//根据redis判断用户是否在线
 	public function check_signin_by_redis()
 	{
 		//redis
-		
+		if (isset($_COOKIE['uid'])) {
+			return $this->redis->exists($_COOKIE['uid']);
+		}else{
+			return false;
+		}
 	}
+	//登录失败，错误数加一,expire为30分钟
+	protected function set_fail_count($username)
+	{
+		$key = md5($username.'sign_fail');
+
+		if ($this->redis->exists($key))
+		{
+			$this->redis->incr($key);
+		}else
+		{
+			$this->redis->setex($key,EXPIRE,1);
+		}
+	}
+	//当前登陆错误次数　
+	protected function get_fail_count($username)
+	{
+		$key = md5($username.'sign_fail');
+		if ($this->redis->exists($key))
+		{
+			return $this->redis->get($key);
+		}else
+		{
+			return 0;
+		}
+	}
+	//redis中错误次数的键值对过期时间
+	protected function get_ttl($username)
+	{
+		$key = md5($username.'sign_fail');
+		if ($this->redis->exists($key))
+		{
+			return $this->redis->ttl($key);
+		}else
+		{
+			return 0;
+		}
+
+	}
+
 
 
 }

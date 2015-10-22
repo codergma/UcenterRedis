@@ -2,6 +2,7 @@
 defined('BASEPATH') or exit('No direct script access allowed');
 
 class Portal extends CI_Controller{
+	private $redis;
 	public function __construct()
 	{
 		parent::__construct();
@@ -9,28 +10,20 @@ class Portal extends CI_Controller{
 		$this->load->model('sign_model');
 		$this->load->helper('url_helper');
         $this->load->library('LB_base_lib');
+        $this->redis = new Redis();
+        $this->redis->connect(REDIS_ADDR,REDIS_PORT);
 	}
 
-
-	public function index_session()
+	public function index()
 	{
-		//redis
-		session_start();
-		$is_online = $_SESSION['online'] ? true:false;
-		if ($is_online)
+		if (isset($_COOKIE['uid']))
 		{
-			$this->load->view('portal/index_session');
+			if($this->redis->exists($_COOKIE['uid']))
+			{
+				$this->load->view('portal/portal_redis');
+				return;
+			}
 		}
-		else
-		{
-			$this->load->view('sign/sign_session');
-		}
+		$this->load->view('sign/sign_redis');
 	}
-	public function index_redis()
-	{
-		$this->load->view('portal/index_redis');
-	}
-
-	
-
 }
