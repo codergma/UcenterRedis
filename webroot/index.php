@@ -98,7 +98,7 @@ switch (ENVIRONMENT)
  * Include the path if the folder is not in the same directory
  * as this file.
  */
-	$system_path = '/home/liubin/Downloads/Ucenter_Redis/system';
+	$system_path = '/home/liubin/Downloads/UcenterRedis/system';
 
 /*
  *---------------------------------------------------------------
@@ -113,7 +113,7 @@ switch (ENVIRONMENT)
  *
  * NO TRAILING SLASH!
  */
-	$application_folder = '/home/liubin/Downloads/Ucenter_Redis/application';
+	$application_folder = '/home/liubin/Downloads/UcenterRedis/application';
 
 /*
  *---------------------------------------------------------------
@@ -128,7 +128,7 @@ switch (ENVIRONMENT)
  *
  * NO TRAILING SLASH!
  */
-	$view_folder = '/home/liubin/Downloads/Ucenter_Redis/webroot/views';
+	$view_folder = '/home/liubin/Downloads/UcenterRedis/webroot/views';
 
 
 /*
