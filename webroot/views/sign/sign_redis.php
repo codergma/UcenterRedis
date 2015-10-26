@@ -122,7 +122,7 @@ a{
                 <div id="login-password-error" class="error-tip" style="display:none">密码不能为空</div>
                 <button id="btn-signin" class="signup-btn enable" type="submit" >登&nbsp&nbsp录</button>
             </div>
-            <p class='modify-password'><a href="#">无法登录？</a></p>
+            <p class='modify-password'><a href="sign/modify_password">无法登录？</a></p>
         </div>
     </div>
 </div>

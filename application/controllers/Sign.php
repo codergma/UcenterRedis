@@ -9,6 +9,7 @@ class Sign extends CI_Controller{
 		$this->load->model('sign_model');
 		$this->load->helper('url_helper');
 		$this->load->library('LB_base_lib');
+		$this->load->library('email');
 		$this->redis = new Redis();
 		$this->redis->connect(REDIS_ADDR,REDIS_PORT);
 	}
@@ -186,14 +187,26 @@ class Sign extends CI_Controller{
 	//修改密码
 	public function modify_password()
 	{
-		//未实现，仅实现发送邮件功能，具体实现在Ucenter_redis中
-		$host = 'smtp.163.com';
-		$from = 'xiatianliubin@163.com';
-		$from_password = '*';
-		$to = 'codergma@163.com';
-		$subject = '修改密码';
-		$body = "点击下面链接修改密码<br/><a href='http://localhost:8084/sign/index_modify_password'>localhost:8084/sign/index_modify_password</a>";
-		$this->lb_base_lib->send_mail($host,$from,$from_password,$to,$subject,$body);
+		// //未实现，仅实现发送邮件功能，具体实现在Ucenter_redis中
+		// $host = 'smtp.163.com';
+		// $from = 'xiatianliubin@163.com';
+		// $from_password = '*';
+		// $to = 'codergma@163.com';
+		// $subject = '修改密码';
+		// $body = "点击下面链接修改密码<br/><a href='http://localhost:8084/sign/index_modify_password'>localhost:8084/sign/index_modify_password</a>";
+		// $this->lb_base_lib->send_mail($host,$from,$from_password,$to,$subject,$body);
+		$config['protocol'] = 'smtp';  
+        $config['smtp_host'] = 'smtp.163.com';  
+        $config['smtp_user'] = 'fortestaa@163.com';  
+        $config['smtp_pass'] = '****';  
+        $config['smtp_port'] = '25';  
+        $config['charset'] = 'utf-8';  
+        $config['wordwrap'] = TRUE;  
+        $config['mailtype'] = 'html';  
+        $this->email->initialize($config); 
+		$this->email->from('fortestaa@163.com','fortestaa');
+		$this->email->to('fortestbb@163.com','codergma');
+		$this->email->send();
 	
 	}
 	//检查用户名格式
