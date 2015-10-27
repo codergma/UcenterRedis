@@ -11,3 +11,5 @@ define('REDIS_PORT', 6379);
 //登录错误次数
 define('MAX_ERR_NUM',5);
 define('EXPIRE', 1800);
+//修改密码链接的过期时间
+define('PASSWD_EXPIRE',30);

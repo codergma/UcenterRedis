@@ -122,7 +122,7 @@ a{
                 <div id="login-password-error" class="error-tip" style="display:none">密码不能为空</div>
                 <button id="btn-signin" class="signup-btn enable" type="submit" >登&nbsp&nbsp录</button>
             </div>
-            <p class='modify-password'><a href="sign/modify_password">无法登录？</a></p>
+            <p class='modify-password'><a href="">无法登录？</a></p>
         </div>
     </div>
 </div>
@@ -295,7 +295,7 @@ $(document).ready(function()
        if (login_username.length == 0 || login_passwd.length == 0)
         return;
 
-        var url = "/Sign/signin_redis";
+        var url = "/Sign/signin";
         var data = {
             "login_username":login_username,
             "login_passwd":login_passwd

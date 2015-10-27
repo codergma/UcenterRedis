@@ -72,7 +72,7 @@
 <script type="text/javascript">
 	$(document).ready(function(){
 		$('#signout').bind('click',function(){
-			var url = '/sign/signout_redis';
+			var url = '/sign/signout';
 			$.ajax({
 				url:url,
 				type:'post',

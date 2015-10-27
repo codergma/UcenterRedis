@@ -9,7 +9,7 @@ class Portal extends CI_Controller{
 		$this->load->model('portal_model');
 		$this->load->model('sign_model');
 		$this->load->helper('url_helper');
-        $this->load->library('LB_base_lib');
+        $this->load->library('CG_base');
         $this->redis = new Redis();
         $this->redis->connect(REDIS_ADDR,REDIS_PORT);
 	}

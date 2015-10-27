@@ -3,7 +3,7 @@ defined('BASEPATH') or die('No direct script access allowe');
 require_once 'PHPMailer.php';
 require_once 'SMTP.php';
 
-class LB_base_lib{
+class CG_base{
 
 /**
  * 获取用户真是ip
@@ -78,15 +78,14 @@ public function real_ip()
  *
  *
  */
-public function echo_json_result($num=1,$msg="")
+public function echo_json($num=1,$msg="")
 {
 	$result = array(
 				 "num"=>$num,
 				 "msg"=>$msg
-		);
+			);
 
 	echo json_encode($result);
-	die();
 }
 /**
  * 发送邮件方法，封装PHPMailer

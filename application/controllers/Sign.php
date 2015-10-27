@@ -8,7 +8,7 @@ class Sign extends CI_Controller{
 		parent::__construct();
 		$this->load->model('sign_model');
 		$this->load->helper('url_helper');
-		$this->load->library('LB_base_lib');
+		$this->load->library('cg_base');
 		$this->load->library('email');
 		$this->redis = new Redis();
 		$this->redis->connect(REDIS_ADDR,REDIS_PORT);
@@ -17,7 +17,7 @@ class Sign extends CI_Controller{
 	public function index()
 	{
 		// 检查是否已经登陆
-		$is_signin = $this->check_signin_by_redis();
+		$is_signin = $this->check_signin();
 		
 		if ($is_signin) 
 		{
@@ -27,57 +27,40 @@ class Sign extends CI_Controller{
 
 		$this->load->view('sign/sign_redis');
 	}
-
-	public function index_modify_password()
+	public function index_modify_passwd($flag)
 	{
-		$this->load->view('sign/modify_password');
+		if(empty($flag))
+		{
+			return ;
+		}
+		if ($this->redis->exists($flag))
+		{
+			$this->load->view('sign/modify_password.php');
+		}
+
 	}
+
 	//注册接口
 	public function signup()
 	{
+		check_signup();
+
 		$username  = $this->input->post('username');
 		$email     = $this->input->post('email');
 		$password  = $this->input->post('password');
 		$password2 = $this->input->post('password2');
-
-		//验证数据是否合法
-		if (!$this->check_username_formate($username))
-		{
-			$this->lb_base_lib->echo_json_result(-1,'username is illegal');
-		}
-		if (!$this->check_email_formate($email)) 
-		{
-			$this->lb_base_lib->echo_json_result(-1,'email is illegal');
-		}
-		if (!$this->check_password_formate($password)) 
-		{
-			$this->lb_base_lib->echo_json_result(-1,'password is illegal');
-		}
-
-		//检查用户名是否已经注册
-		if ($this->sign_model->check_username_exists($username))
-		{
-			$this->lb_base_lib->echo_json_result(-1,"username is exists");
-		}
-		//检查邮箱是否已经注册
-		if ($this->sign_model->check_email_exists($email))
-		{
-			$this->lb_base_lib->echo_json_result(-1,"email is exists");
-		}
-			
+		
 		//输入信息过滤
 		$username = addslashes(trim($username));
 		$email    = addslashes(trim($email));
 		$password = addslashes(trim($password));
-		$regip    = $this->lb_base_lib->real_ip();
+		$regip    = $this->CG_base->real_ip();
 		//用户信息写入数据库
 		$result = $this->sign_model->add_user($username,$email,$password,$regip);
-		$this->lb_base_lib->echo_json_result($result,"success");
-
+		$this->CG_base->echo_json($result,"success");
 	}
-	/*
-	以下部分内容在Ucenter_redis中实现；
 
+    /**
 	*用户名和口令：
 			正则表达式限制用户输入口令；
 			密码加密保存 md5(md5(passwd+salt))；
@@ -121,7 +104,7 @@ class Sign extends CI_Controller{
 	*/
 
 	//登录接口
-	public function signin_redis()
+	public function signin()
 	{
 
 		$login_username = addslashes(trim($this->input->post('login_username')));
@@ -131,7 +114,7 @@ class Sign extends CI_Controller{
 		//检查用户名是否存在
 		if(empty($user))
 		{
-	      $this->lb_base_lib->echo_json_result(-1,"username dose not exists");
+	      $this->CG_base->echo_json(-1,"username dose not exists");
 		} 
 		//检查登录错误次数
 		$fail_num = $this->get_fail_count($login_username);
@@ -140,18 +123,15 @@ class Sign extends CI_Controller{
 			$this->set_fail_count($login_username);
 			$ttl = $this->get_ttl($login_username);
 			$ttl = ceil($ttl/60);
-			$this->lb_base_lib->echo_json_result(-1,"Fail too many times, please login again after {$ttl} minutes "); 
+			$this->CG_base->echo_json(-1,"Fail too many times, please login again after {$ttl} minutes "); 
 		}
-
-			
+	    //验证密码		
 		$login_passwd = md5(md5($login_passwd).$user->salt);
 		if ($login_passwd == $user->password)
 		{
-			//更新最后登录ip
-			$last_signin_ip = $this->lb_base_lib->real_ip();
+			$last_signin_ip = $this->CG_base->real_ip();
 			$this->sign_model->update_signin($last_signin_ip,time(),$user->username);
 			
-			//redis
 			$key = md5(mt_rand());
 			$test = setcookie('uid',$key,time()+EXPIRE,'/','');
 			$_COOKIE['uid'] = $key;
@@ -162,52 +142,80 @@ class Sign extends CI_Controller{
 				);
 			$test = $this->redis->setex($key,EXPIRE,json_encode($value));
 
-		    $this->lb_base_lib->echo_json_result(1,"signin success");
+		    $this->CG_base->echo_json(1,"signin success");
 		}
 		else
 		{
 			$this->set_fail_count($login_username);
 			$count = 5 - $this->get_fail_count($login_username);
-		    $this->lb_base_lib->echo_json_result(-1," 还剩{$count}次机会");
+		    $this->CG_base->echo_json(-1," 还剩{$count}次机会");
 		}
 	}
 
 	//登出
-	public function signout_redis()
+	public function signout()
 	{
-		//redis
 		if (isset($_COOKIE['uid']))
 		{
 			$this->redis->del($_COOKIE['uid']);
-			$this->lb_base_lib->echo_json_result(1,"signout success");
+			$this->CG_base->echo_json(1,"signout success");
 		}
-
 	}
 
 	//修改密码
 	public function modify_password()
 	{
-		// //未实现，仅实现发送邮件功能，具体实现在Ucenter_redis中
-		// $host = 'smtp.163.com';
-		// $from = 'xiatianliubin@163.com';
-		// $from_password = '*';
-		// $to = 'codergma@163.com';
-		// $subject = '修改密码';
-		// $body = "点击下面链接修改密码<br/><a href='http://localhost:8084/sign/index_modify_password'>localhost:8084/sign/index_modify_password</a>";
-		// $this->lb_base_lib->send_mail($host,$from,$from_password,$to,$subject,$body);
+        $flag = md5(mt_rand());
+        $this->redis->setex($flag,PASSWD_EXPIRE,'modify_password');
+        $url = "http://localhost:8084/sign/index_modify_passwd/".$flag;
+        $msg = "点击一下链接修改密码<br/>"."<a href='{$url}'>".$url."</a>";
+        $subject = '修改密码';
+
 		$config['protocol'] = 'smtp';  
         $config['smtp_host'] = 'smtp.163.com';  
-        $config['smtp_user'] = 'fortestaa@163.com';  
-        $config['smtp_pass'] = '****';  
+        $config['smtp_user'] = 'xiatianliubin@163.com';  
+        $config['smtp_pass'] = 'c@der.gmai12450';  
         $config['smtp_port'] = '25';  
         $config['charset'] = 'utf-8';  
         $config['wordwrap'] = TRUE;  
         $config['mailtype'] = 'html';  
         $this->email->initialize($config); 
-		$this->email->from('fortestaa@163.com','fortestaa');
-		$this->email->to('fortestbb@163.com','codergma');
+		$this->email->from('xiatianliubin@163.com','fortestaa');
+		$this->email->to('fortestab@163.com','codergma');
+		$this->email->subject($subject);
+		$this->email->message($msg);
 		$this->email->send();
-	
+	}
+	//验证注册数据是否合法
+	protected function check_signup()
+	{
+		if (!$this->check_username_formate($username))
+		{
+			$this->CG_base->echo_json(-1,'username is illegal');
+			exit;
+		}
+		if (!$this->check_email_formate($email)) 
+		{
+			$this->CG_base->echo_json(-1,'email is illegal');
+			exit;
+		}
+		if (!$this->check_password_formate($password)) 
+		{
+			$this->CG_base->echo_json(-1,'password is illegal');
+			exit;
+		}
+		//检查用户名是否已经注册
+		if ($this->sign_model->check_username_exists($username))
+		{
+			$this->CG_base->echo_json(-1,"username is exists");
+			exit;
+		}
+		//检查邮箱是否已经注册
+		if ($this->sign_model->check_email_exists($email))
+		{
+			$this->CG_base->echo_json(-1,"email is exists");
+			exit;
+		}
 	}
 	//检查用户名格式
 	public function check_username_formate($username)
@@ -228,7 +236,7 @@ class Sign extends CI_Controller{
 
 	
 	//根据redis判断用户是否在线
-	public function check_signin_by_redis()
+	public function check_signin()
 	{
 		//redis
 		if (isset($_COOKIE['uid'])) {
@@ -262,7 +270,7 @@ class Sign extends CI_Controller{
 			return 0;
 		}
 	}
-	//redis中错误次数的键值对过期时间
+	//redis中记录错误次数的键值对过期时间
 	protected function get_ttl($username)
 	{
 		$key = md5($username.'sign_fail');
