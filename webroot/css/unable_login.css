@@ -1,0 +1,60 @@
+body{
+	font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+}
+.unable-login{
+	width: 300px;
+	height:260px;
+	margin:0 auto;
+	border:1px solid #cbcbcb;
+	border-radius:5px;
+	box-shadow:0 0 15px 0 rgba(0,0,0,.3);
+	margin-top: 40px;
+	z-index: 99;
+}
+.unable-login h1{
+	height: 18px;
+	line-height: 18px;
+	text-align: center;
+	font-size: 16px;
+	color: #787878;
+}
+.unable-login h2{
+	height: 14px;
+	line-height: 14px;
+	text-align: center;
+	font-size: 14px;
+	color: #787878;
+	font-weight:normal;
+}
+.blue-button{
+	background-color: #0077d9;
+	border: 0;
+	border-radius: 3px;
+	outline:none;
+	font-size: 14px;
+	color: #fff;
+	cursor: pointer;
+}
+.blue-button:hover{
+	background-color: #0070cd;
+}
+.unable-login .reset-passwd{
+	width: 165px;
+	height: 34px;
+	padding: 10px 0;
+	line-height: 14px;
+	text-align: center;
+	display: block;
+	margin: auto;
+	margin-top: 50px;
+}
+.unable-login .sms-login{
+	width: 165px;
+	height: 34px;
+	padding: 10px 0;
+	line-height: 14px;
+	text-align: center;
+	display: block;
+	margin: auto;
+	margin-top: 20px;
+}

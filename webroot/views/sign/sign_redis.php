@@ -3,6 +3,7 @@
 <head>
 <title>首页</title>
 <meta charset='utf-8'>
+<link rel="stylesheet" type="text/css" href="/css/unable_login.css">
 <style >
 *{
     margin:0;
@@ -14,12 +15,7 @@ body{
 .top{
     height:1000px;
     background-color: #0078d8;
-    /*margin-bottom: 20px;*/
 }
-/*.bottom{
-    height: 500px;
-    background-color: #c52f24;
-}*/
 .inner-wrapper{
     width: 740px;
     margin: 0 auto ;
@@ -122,7 +118,7 @@ a{
                 <div id="login-password-error" class="error-tip" style="display:none">密码不能为空</div>
                 <button id="btn-signin" class="signup-btn enable" type="submit" >登&nbsp&nbsp录</button>
             </div>
-            <p class='modify-password'><a href="">无法登录？</a></p>
+            <p class='modify-password'><a href="#" onclick="retrieve_passwd()">无法登录？</a></p>
         </div>
     </div>
 </div>
@@ -318,17 +314,18 @@ $(document).ready(function()
     });
 
 
-    $('.modify-password').bind('click',function(){
-        var url = '/sign/modify_password'
-        $.ajax({
-            url:url,
-            type:'post',
-            dataType:'json'
-        });
-    });
+    // $('.modify-password').bind('click',function(){
+    //     var url = '/sign/modify_password'
+    //     $.ajax({
+    //         url:url,
+    //         type:'post',
+    //         dataType:'json'
+    //     });
+    // });
 
 
 });
 </script>
+<script type="text/javascript" src="/js/sign/unable_login.js"></script>
 </body>
 </html>
