@@ -36,9 +36,8 @@ class Sign_model extends CI_Model{
 	//注册接口
 	public function add_user($username,$email,$password,$regip='')
 	{
-		$salt     = substr(uniqid(rand()),-6);
-		$password = md5(md5($password).$salt);//数据库密码采用盐+两次md5加密的方式
-
+		$salt     = $this->gen_salt();
+		$password = $this->gen_passwd($password,$salt);
 		$query = "INSERT INTO ci_user(username,email,password,regip,salt) VALUES 
 					('$username','$email','$password','$regip','$salt')";
 		$this->db->query($query);
@@ -53,6 +52,28 @@ class Sign_model extends CI_Model{
 		$result = $this->db->query($query);
 	}
 
+	//重置密码 
+	public function reset_passwd($email,$password)
+	{
+		$salt     = $this->gen_salt();
+		$passwd = $this->gen_passwd($password,$salt);//数据库密码采用盐+两次md5加密的方式
+
+		$query = "UPDATE ci_user SET password=".$passwd.",salt=".$salt." WHERE email=".$email;
+		$this->db->query($query);
+		$num = $this->db->affected_rows();
+	    return $num>0?true:false;
+	}
+
+	//盐的生成规则
+	private function gen_salt()
+	{
+		return substr(uniqid(rand()),-6);
+	}
+	//密码生成规则
+	private function gen_passwd($passwd,$salt)
+	{
+		return md5(md5($passwd).$salt);
+	}
 
 
 

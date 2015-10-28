@@ -29,26 +29,26 @@ class Sign extends CI_Controller{
 	}
 	public function index_modify_passwd($flag)
 	{
-		if(empty($flag))
+		if(empty($flag) || !$this->redis->exists($flag))
 		{
+			show_404();
 			return ;
 		}
-		if ($this->redis->exists($flag))
-		{
-			$this->load->view('sign/modify_password.php');
-		}
 
+        $this->load->view('sign/modify_password.php');
 	}
 
 	//注册接口
 	public function signup()
 	{
-		check_signup();
+
 
 		$username  = $this->input->post('username');
 		$email     = $this->input->post('email');
 		$password  = $this->input->post('password');
 		$password2 = $this->input->post('password2');
+
+        check_signup($username,$email,$password);
 		
 		//输入信息过滤
 		$username = addslashes(trim($username));
@@ -162,34 +162,60 @@ class Sign extends CI_Controller{
 		}
 	}
 
-	//修改密码
+	//发送修改密码链接
 	public function modify_password()
 	{
 		$email = $this->input->post('email');
         $flag = md5(mt_rand());
-        $this->redis->setex($flag,PASSWD_EXPIRE,'modify_password');
+        $this->redis->setex($flag,PASSWD_EXPIRE,$email);
         $url = "http://localhost:8084/sign/index_modify_passwd/".$flag;
         $msg = "点击一下链接修改密码<br/>"."<a href='{$url}'>".$url."</a>";
         $subject = '修改密码';
 
 		$config['protocol'] = 'smtp';  
         $config['smtp_host'] = 'smtp.163.com';  
-        $config['smtp_user'] = 'fortestaa@163.com';  
-        $config['smtp_pass'] = '123456q';  
+        $config['smtp_user'] = 'xiatianliubin@163.com';  
+        $config['smtp_pass'] = '****';  
         $config['smtp_port'] = '25';  
         $config['charset'] = 'utf-8';  
         $config['wordwrap'] = TRUE;  
         $config['mailtype'] = 'html';  
         $this->email->initialize($config); 
-		$this->email->from('fortestaa@163.com','fortestaa');
-		$this->email->to('{$email}','fortesab');
+		$this->email->from('xiatianliubin@163.com','xiatianliubin');
+		$this->email->to($email,'fortesab');
 		$this->email->subject($subject);
 		$this->email->message($msg);
 		$this->email->send();
-		$msg = $this->email->print_debugger();
 	}
+	//重置密码
+	public function reset_passwd()
+	{
+		$passwd = $this->input->post_get('password');
+		if (!$this->check_password_formate($passwd))
+		{
+			$this->cg_base->echo_json(-1,'fail');
+			return;
+		}
+		
+		$request_url = $this->input->server('REQUEST_URL');
+		$flag =  substr($request_url, -32);
+		$email = $this->redis->get($flag);
+
+		if (empty($email))
+		{
+			$this->cg_base->echo_json(-1,'fail');
+			return; 
+		}
+		
+		if($this->sign_model->reset_passwd($email,$passwd))
+		{
+			$this->cg_base->echo_json(1,'success');
+			return;
+		}
+	}
+
 	//验证注册数据是否合法
-	protected function check_signup()
+	protected function check_signup($username,$email,$password)
 	{
 		if (!$this->check_username_formate($username))
 		{
