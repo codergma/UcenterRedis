@@ -58,7 +58,7 @@ class Sign_model extends CI_Model{
 		$salt     = $this->gen_salt();
 		$passwd = $this->gen_passwd($password,$salt);//数据库密码采用盐+两次md5加密的方式
 
-		$query = "UPDATE ci_user SET password=".$passwd.",salt=".$salt." WHERE email=".$email;
+		$query = "UPDATE ci_user SET password="."'$passwd'".",salt="."'$salt'"." WHERE email="."'$email'";
 		$this->db->query($query);
 		$num = $this->db->affected_rows();
 	    return $num>0?true:false;

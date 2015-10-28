@@ -92,7 +92,8 @@ body{
 		};
 		if (check_password(passwd) && check_password(passwd2))
 		{
-			var url = '/Sign/reset_passwd/';
+            var query_str = "<?php echo substr($_SERVER['REQUEST_URI'],-32);?>";
+			var url = '/Sign/reset_passwd/'+query_str;
 			var data = {"password":passwd};
 			$.ajax({
 				url:url,

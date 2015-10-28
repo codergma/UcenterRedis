@@ -175,7 +175,7 @@ class Sign extends CI_Controller{
 		$config['protocol'] = 'smtp';  
         $config['smtp_host'] = 'smtp.163.com';  
         $config['smtp_user'] = 'xiatianliubin@163.com';  
-        $config['smtp_pass'] = '****';  
+        $config['smtp_pass'] = '**';
         $config['smtp_port'] = '25';  
         $config['charset'] = 'utf-8';  
         $config['wordwrap'] = TRUE;  
@@ -188,18 +188,21 @@ class Sign extends CI_Controller{
 		$this->email->send();
 	}
 	//重置密码
-	public function reset_passwd()
+	public function reset_passwd($reset_flag)
 	{
+        if(empty($reset_flag))
+        {
+			$this->cg_base->echo_json(-1,'fail');
+			return;
+        }
 		$passwd = $this->input->post_get('password');
 		if (!$this->check_password_formate($passwd))
 		{
 			$this->cg_base->echo_json(-1,'fail');
 			return;
 		}
-		
-		$request_url = $this->input->server('REQUEST_URL');
-		$flag =  substr($request_url, -32);
-		$email = $this->redis->get($flag);
+
+		$email = $this->redis->get($reset_flag);
 
 		if (empty($email))
 		{
