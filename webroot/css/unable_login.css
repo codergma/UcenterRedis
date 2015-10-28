@@ -1,15 +1,27 @@
 body{
 	font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
 }
+.modal-wrap{
+	position:fixed;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	background-color: rgba(255,255,255,0.8);
+	z-index: 99;
+	overflow: hidden;
+	height: 920px;
+}
 .unable-login{
 	width: 300px;
-	height:260px;
+	height:235px;
 	margin:0 auto;
 	border:1px solid #cbcbcb;
 	border-radius:5px;
 	box-shadow:0 0 15px 0 rgba(0,0,0,.3);
-	margin-top: 40px;
-	z-index: 99;
+	margin-top: 80px;
+	background-color: #FFF;
+	padding-top:25px;
 }
 .unable-login h1{
 	height: 18px;
@@ -35,7 +47,7 @@ body{
 	color: #fff;
 	cursor: pointer;
 }
-.blue-button:hover{
+.blue-button:hover,.blue-button:active{
 	background-color: #0070cd;
 }
 .unable-login .reset-passwd{
@@ -49,6 +61,28 @@ body{
 	margin-top: 50px;
 }
 .unable-login .sms-login{
+	width: 165px;
+	height: 34px;
+	padding: 10px 0;
+	line-height: 14px;
+	text-align: center;
+	display: block;
+	margin: auto;
+	margin-top: 20px;
+}
+.input-wrap{
+	padding:15px 8px;
+	margin-top: 50px;
+	border-top: 1px solid #eee;
+	border-bottom: 1px solid #eee;
+}
+#email-for-reset{
+	border:0;
+	outline: 0;
+	font-size: 14px;
+
+}
+.send-email{
 	width: 165px;
 	height: 34px;
 	padding: 10px 0;

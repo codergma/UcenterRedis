@@ -8,7 +8,7 @@ class Sign extends CI_Controller{
 		parent::__construct();
 		$this->load->model('sign_model');
 		$this->load->helper('url_helper');
-		$this->load->library('cg_base');
+		$this->load->library('CG_base');
 		$this->load->library('email');
 		$this->redis = new Redis();
 		$this->redis->connect(REDIS_ADDR,REDIS_PORT);
@@ -54,10 +54,10 @@ class Sign extends CI_Controller{
 		$username = addslashes(trim($username));
 		$email    = addslashes(trim($email));
 		$password = addslashes(trim($password));
-		$regip    = $this->CG_base->real_ip();
+		$regip    = $this->cg_base->real_ip();
 		//用户信息写入数据库
 		$result = $this->sign_model->add_user($username,$email,$password,$regip);
-		$this->CG_base->echo_json($result,"success");
+		$this->cg_base->echo_json($result,"success");
 	}
 
     /**
@@ -114,7 +114,7 @@ class Sign extends CI_Controller{
 		//检查用户名是否存在
 		if(empty($user))
 		{
-	      $this->CG_base->echo_json(-1,"username dose not exists");
+	      $this->cg_base->echo_json(-1,"username dose not exists");
 		} 
 		//检查登录错误次数
 		$fail_num = $this->get_fail_count($login_username);
@@ -123,13 +123,13 @@ class Sign extends CI_Controller{
 			$this->set_fail_count($login_username);
 			$ttl = $this->get_ttl($login_username);
 			$ttl = ceil($ttl/60);
-			$this->CG_base->echo_json(-1,"Fail too many times, please login again after {$ttl} minutes "); 
+			$this->cg_base->echo_json(-1,"Fail too many times, please login again after {$ttl} minutes "); 
 		}
 	    //验证密码		
 		$login_passwd = md5(md5($login_passwd).$user->salt);
 		if ($login_passwd == $user->password)
 		{
-			$last_signin_ip = $this->CG_base->real_ip();
+			$last_signin_ip = $this->cg_base->real_ip();
 			$this->sign_model->update_signin($last_signin_ip,time(),$user->username);
 			
 			$key = md5(mt_rand());
@@ -142,13 +142,13 @@ class Sign extends CI_Controller{
 				);
 			$test = $this->redis->setex($key,EXPIRE,json_encode($value));
 
-		    $this->CG_base->echo_json(1,"signin success");
+		    $this->cg_base->echo_json(1,"signin success");
 		}
 		else
 		{
 			$this->set_fail_count($login_username);
 			$count = 5 - $this->get_fail_count($login_username);
-		    $this->CG_base->echo_json(-1," 还剩{$count}次机会");
+		    $this->cg_base->echo_json(-1," 还剩{$count}次机会");
 		}
 	}
 
@@ -158,13 +158,14 @@ class Sign extends CI_Controller{
 		if (isset($_COOKIE['uid']))
 		{
 			$this->redis->del($_COOKIE['uid']);
-			$this->CG_base->echo_json(1,"signout success");
+			$this->cg_base->echo_json(1,"signout success");
 		}
 	}
 
 	//修改密码
 	public function modify_password()
 	{
+		$email = $this->input->post('email');
         $flag = md5(mt_rand());
         $this->redis->setex($flag,PASSWD_EXPIRE,'modify_password');
         $url = "http://localhost:8084/sign/index_modify_passwd/".$flag;
@@ -173,47 +174,48 @@ class Sign extends CI_Controller{
 
 		$config['protocol'] = 'smtp';  
         $config['smtp_host'] = 'smtp.163.com';  
-        $config['smtp_user'] = 'xiatianliubin@163.com';  
-        $config['smtp_pass'] = '***';  
+        $config['smtp_user'] = 'fortestaa@163.com';  
+        $config['smtp_pass'] = '123456q';  
         $config['smtp_port'] = '25';  
         $config['charset'] = 'utf-8';  
         $config['wordwrap'] = TRUE;  
         $config['mailtype'] = 'html';  
         $this->email->initialize($config); 
-		$this->email->from('xiatianliubin@163.com','fortestaa');
-		$this->email->to('fortestab@163.com','codergma');
+		$this->email->from('fortestaa@163.com','fortestaa');
+		$this->email->to('{$email}','fortesab');
 		$this->email->subject($subject);
 		$this->email->message($msg);
 		$this->email->send();
+		$msg = $this->email->print_debugger();
 	}
 	//验证注册数据是否合法
 	protected function check_signup()
 	{
 		if (!$this->check_username_formate($username))
 		{
-			$this->CG_base->echo_json(-1,'username is illegal');
+			$this->cg_base->echo_json(-1,'username is illegal');
 			exit;
 		}
 		if (!$this->check_email_formate($email)) 
 		{
-			$this->CG_base->echo_json(-1,'email is illegal');
+			$this->cg_base->echo_json(-1,'email is illegal');
 			exit;
 		}
 		if (!$this->check_password_formate($password)) 
 		{
-			$this->CG_base->echo_json(-1,'password is illegal');
+			$this->cg_base->echo_json(-1,'password is illegal');
 			exit;
 		}
 		//检查用户名是否已经注册
 		if ($this->sign_model->check_username_exists($username))
 		{
-			$this->CG_base->echo_json(-1,"username is exists");
+			$this->cg_base->echo_json(-1,"username is exists");
 			exit;
 		}
 		//检查邮箱是否已经注册
 		if ($this->sign_model->check_email_exists($email))
 		{
-			$this->CG_base->echo_json(-1,"email is exists");
+			$this->cg_base->echo_json(-1,"email is exists");
 			exit;
 		}
 	}

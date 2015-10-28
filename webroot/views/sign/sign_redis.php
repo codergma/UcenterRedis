@@ -3,7 +3,6 @@
 <head>
 <title>首页</title>
 <meta charset='utf-8'>
-<link rel="stylesheet" type="text/css" href="/css/unable_login.css">
 <style >
 *{
     margin:0;
@@ -89,7 +88,6 @@ a{
     margin-top:10px;
     margin-left: 150px;
 }
-
 </style>
 </head>
 <body>
@@ -124,6 +122,7 @@ a{
 </div>
 <div style="clear:both;"></div>
 <script src="/js/jq.js" ></script>
+<script type="text/javascript" src="/js/sign/unable_login.js"></script>
 <script type="text/javascript">
    var Utils =  new Object();
    //用户名是否合法
@@ -326,6 +325,5 @@ $(document).ready(function()
 
 });
 </script>
-<script type="text/javascript" src="/js/sign/unable_login.js"></script>
 </body>
 </html>
