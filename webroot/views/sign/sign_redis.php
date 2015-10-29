@@ -282,8 +282,9 @@ $(document).ready(function()
             $(this).next().hide();
         }
     });
-    //绑定登录按钮
-    $('#btn-signin').bind('click',function(){
+    //登录
+    function signin()
+    {
        var login_username = $("input[name='login-username']").val(); 
        var login_passwd   = $("input[name='login-password']").val();
 
@@ -310,19 +311,16 @@ $(document).ready(function()
             }
         });
 
-    });
+    }
+    //绑定登录按钮
+    $('#btn-signin').bind('click',signin);
 
-
-    // $('.modify-password').bind('click',function(){
-    //     var url = '/sign/modify_password'
-    //     $.ajax({
-    //         url:url,
-    //         type:'post',
-    //         dataType:'json'
-    //     });
-    // });
-
-
+    document.onkeydown = function(event){
+        if (event.keyCode == 13)
+        {
+            signin();
+        };
+    }
 });
 </script>
 </body>

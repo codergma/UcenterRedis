@@ -77,6 +77,7 @@ body{
 </div>
 <script type="text/javascript" src="/js/jq.js"></script>
 <script type="text/javascript">
+	//确认修改
 	$('#reset').bind('click',function(event){
 		passwd = $('#first-password').val();
 		passwd2 = $('#second-password').val();
@@ -103,7 +104,12 @@ body{
 				success:function(result){
 					if (result.num = 1)
 					{
-						$("#error-msg").html('修改成功！').show();
+						count_time = 5;
+						clear_interval = window.setInterval(ramain_time,1000);
+					}
+					else
+					{
+						$("#error-msg").html('修改失败！').show();
 					}
 				}
 			});
@@ -114,17 +120,32 @@ body{
 			return;
 		}
 	});
-
+	//input
 	$('input').bind('focus',function(){
 		$('#error-msg').hide();
 	});
+	//检查密码是否符合要求
 	function check_password(passwd)
 	{
 	    var regexp = /[a-zA-Z]+/;
 	    var regexp2 = /[0-9]+/;
 	    var regexp3 = /[\s\S]{6,16}$/;
-	    // return "'"+regexp.test(passwd)+"','"+  regexp2.test(passwd)+"','" + regexp3.test(passwd)+"'";
 	    return regexp.test(passwd)&&regexp2.test(passwd)&&regexp3.test(passwd);
+	}
+	//密码修改成功 
+	function ramain_time()
+	{
+		if (count_time > 0)
+		{
+			var msg = '修改成功 '+count_time+' 秒后跳转到首页';
+			$("#error-msg").html(msg).show();
+			count_time--;
+		}
+		else
+		{
+			window.clearInterval(clear_interval);
+			window.location.href = '/sign/index'
+		}
 	}
 
 </script>

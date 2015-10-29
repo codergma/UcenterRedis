@@ -10,9 +10,9 @@ body{
 	background-color: rgba(255,255,255,0.8);
 	z-index: 99;
 	overflow: hidden;
-	height: 920px;
+	height: 100%;
 }
-.unable-login{
+.modal-unable-login{
 	width: 300px;
 	height:235px;
 	margin:0 auto;
@@ -22,15 +22,16 @@ body{
 	margin-top: 80px;
 	background-color: #FFF;
 	padding-top:25px;
+	position: relative;
 }
-.unable-login h1{
+.modal-unable-login h1{
 	height: 18px;
 	line-height: 18px;
 	text-align: center;
 	font-size: 16px;
 	color: #787878;
 }
-.unable-login h2{
+.modal-unable-login h2{
 	height: 14px;
 	line-height: 14px;
 	text-align: center;
@@ -50,7 +51,7 @@ body{
 .blue-button:hover,.blue-button:active{
 	background-color: #0070cd;
 }
-.unable-login .reset-passwd{
+.modal-unable-login .reset-passwd{
 	width: 165px;
 	height: 34px;
 	padding: 10px 0;
@@ -60,7 +61,7 @@ body{
 	margin: auto;
 	margin-top: 50px;
 }
-.unable-login .sms-login{
+.modal-unable-login .sms-login{
 	width: 165px;
 	height: 34px;
 	padding: 10px 0;
@@ -71,16 +72,18 @@ body{
 	margin-top: 20px;
 }
 .input-wrap{
-	padding:15px 8px;
 	margin-top: 50px;
 	border-top: 1px solid #eee;
 	border-bottom: 1px solid #eee;
+	width: 300px;
 }
 #email-for-reset{
 	border:0;
 	outline: 0;
 	font-size: 14px;
-
+	width: 284px;
+	height:18px;
+	padding:15px 8px;
 }
 .send-email{
 	width: 165px;
@@ -91,4 +94,32 @@ body{
 	display: block;
 	margin: auto;
 	margin-top: 20px;
+}
+#modal-email-error{
+	color:#c33;
+	position:absolute;
+	top:15px;
+	right:4px;
+	font-size: 12px;
+	display: none;
+}
+.modal-icon{
+	width: 16px;
+	height: 16px;
+	opacity: .2;
+	position: absolute;
+	background-image:url('/img/sign.png'); 
+}
+.modal-icon:hover{
+	opacity: .3;
+}
+.modal-close{
+	top:5px;
+	right:5px;
+	background-position: -37px -76px;
+}
+.modal-back{
+	top:5px;
+	left:5px;
+	background-position: -19px -76px;
 }

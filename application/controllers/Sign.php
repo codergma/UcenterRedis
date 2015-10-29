@@ -66,10 +66,11 @@ class Sign extends CI_Controller{
 			密码加密保存 md5(md5(passwd+salt))；
 			允许浏览器保存口令；
 			口令在网上传输协议http;
-	*用户登陆状态：因为http是无状态的协议，每次请求都是独立的， 所以这个协议无
+	*用户登陆状态：
+			因为http是无状态的协议，每次请求都是独立的， 所以这个协议无
 			法记录用户访问状态，在多个页面跳转中如何知道用户登陆状态呢?
 			那就要在每个页面都要对用户身份进行认证。
-			我将使用三种方法实现用户登录状态验证(在下才疏学浅望指正):
+			我将使用三种方法实现用户登录状态验证:
 			(1)在cookie中保存用户名和密码，每次页面跳转的时候进行密码验证，正确则登录状态；
 			   这个方法显然太挫了，每次都要与数据库交互显然严重影响性能，那么你可能想，直接
 			   在cookie中保存登录状态true|false，这更挫，太不安全了，不过你可以在session
@@ -106,7 +107,6 @@ class Sign extends CI_Controller{
 	//登录接口
 	public function signin()
 	{
-
 		$login_username = addslashes(trim($this->input->post('login_username')));
 		$login_passwd   = addslashes(trim($this->input->post('login_passwd')));
 		$user = $this->sign_model->get_user_by_username($login_username);
@@ -175,7 +175,7 @@ class Sign extends CI_Controller{
 		$config['protocol'] = 'smtp';  
         $config['smtp_host'] = 'smtp.163.com';  
         $config['smtp_user'] = 'xiatianliubin@163.com';  
-        $config['smtp_pass'] = '**';
+        $config['smtp_pass'] = '***';
         $config['smtp_port'] = '25';  
         $config['charset'] = 'utf-8';  
         $config['wordwrap'] = TRUE;  
@@ -185,7 +185,16 @@ class Sign extends CI_Controller{
 		$this->email->to($email,'fortesab');
 		$this->email->subject($subject);
 		$this->email->message($msg);
-		$this->email->send();
+		$result = $this->email->send();
+		if ($result)
+		{
+			$this->cg_base->echo_json(1,'success');
+		}
+		else
+		{
+			$this->cg_base->echo_json(-1,'fail');
+		}
+
 	}
 	//重置密码
 	public function reset_passwd($reset_flag)
@@ -195,6 +204,7 @@ class Sign extends CI_Controller{
 			$this->cg_base->echo_json(-1,'fail');
 			return;
         }
+
 		$passwd = $this->input->post_get('password');
 		if (!$this->check_password_formate($passwd))
 		{
@@ -203,18 +213,22 @@ class Sign extends CI_Controller{
 		}
 
 		$email = $this->redis->get($reset_flag);
-
 		if (empty($email))
 		{
 			$this->cg_base->echo_json(-1,'fail');
 			return; 
 		}
 		
-		if($this->sign_model->reset_passwd($email,$passwd))
+		if(!$this->sign_model->reset_passwd($email,$passwd))
 		{
-			$this->cg_base->echo_json(1,'success');
+			$this->cg_base->echo_json(-1,'fail');
 			return;
 		}
+
+		$this->cg_base->echo_json(1,'sucess');
+		$this->redis->del($reset_flag);
+
+
 	}
 
 	//验证注册数据是否合法
