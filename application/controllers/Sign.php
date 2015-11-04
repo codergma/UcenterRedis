@@ -1,6 +1,8 @@
 <?php
 defined('BASEPATH') or die('No direct script access allowed');
-
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+use Monolog\Handler\FirePHPHandler;
 class Sign extends CI_Controller{
 	private $redis = null;
 	public function __construct()
@@ -12,6 +14,10 @@ class Sign extends CI_Controller{
 		$this->load->library('email');
 		$this->redis = new Redis();
 		$this->redis->connect(REDIS_ADDR,REDIS_PORT);
+
+        $this->logger = new Logger('my_logger');
+        $this->logger->pushHandler(new StreamHandler(__DIR__.'/../logs/my_app.log', Logger::DEBUG));
+        $this->logger->pushHandler(new FirePHPHandler());
 	}
 
 	public function index()
@@ -41,8 +47,6 @@ class Sign extends CI_Controller{
 	//注册接口
 	public function signup()
 	{
-
-
 		$username  = $this->input->post('username');
 		$email     = $this->input->post('email');
 		$password  = $this->input->post('password');
@@ -101,12 +105,14 @@ class Sign extends CI_Controller{
 		(2)用户口令失败次数,并且增加尝试的时间成本
 		(3)系统全局防守,比如系统每天5000次口令错误，就认为遭遇了攻击，
 	  	然后增加所有用户输错口令的时间成本。
-		(4)使用第三方的OAuth和OpenID
+		(4)使用第三方的OAuth和OpenID,现在很少用了。
 	*/
 
 	//登录接口
 	public function signin()
 	{
+        $this->logger->addInfo('My logger is now ready');
+		
 		$login_username = addslashes(trim($this->input->post('login_username')));
 		$login_passwd   = addslashes(trim($this->input->post('login_passwd')));
 		$user = $this->sign_model->get_user_by_username($login_username);
@@ -115,6 +121,7 @@ class Sign extends CI_Controller{
 		if(empty($user))
 		{
 	      $this->cg_base->echo_json(-1,"username dose not exists");
+            return;
 		} 
 		//检查登录错误次数
 		$fail_num = $this->get_fail_count($login_username);
@@ -123,7 +130,8 @@ class Sign extends CI_Controller{
 			$this->set_fail_count($login_username);
 			$ttl = $this->get_ttl($login_username);
 			$ttl = ceil($ttl/60);
-			$this->cg_base->echo_json(-1,"Fail too many times, please login again after {$ttl} minutes "); 
+			$this->cg_base->echo_json(-1,"Fail too many times, please login again after {$ttl} minutes ");
+            return ;
 		}
 	    //验证密码		
 		$login_passwd = md5(md5($login_passwd).$user->salt);
@@ -150,6 +158,7 @@ class Sign extends CI_Controller{
 			$count = 5 - $this->get_fail_count($login_username);
 		    $this->cg_base->echo_json(-1," 还剩{$count}次机会");
 		}
+		$this->logger->addInfo('My logger is now ready');
 	}
 
 	//登出
