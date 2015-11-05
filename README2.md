@@ -13,7 +13,7 @@
 
 
 
-		<VirtualHost *:8088>		
+		<VirtualHost *:8084>		
 		DocumentRoot /home/liubin/Downloads/Ucenter_Redis/webroot 		
 		<Directory /home/liubin/Downloads/Ucenter_Redis/webroot>		
 			Require all granted		

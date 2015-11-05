@@ -45,11 +45,22 @@
       padding: 0 320px;
       padding-bottom: 50px;     
     }
+    .error{
+      width:700px;
+      margin:0 auto;
+    }
 
     </style>
   </head>
   <body>
   <div class="container">
+  <?php if(!empty(validation_errors())): ?>
+    <div class="alert alert-warning alert-dismissible error text-center" >
+      <button type="button" class="close" data-dismiss="alert" ><span >&times;</span></button>
+      <?php echo validation_errors(); ?>
+    </div>
+  <?php endif; ?>
+
     <div class="signin-page">
     	<div class="logo text-center">
        share 
@@ -64,21 +75,24 @@
 
     	<div class="sign-container">
         <!--登录-->
-        <form id="signin">
+        <?php
+          echo $b = set_value('signin-username');
+          echo form_open('sign/signin','id="signin"');
+        ?>
           <div class="form-group">
-            <label class="control-label sr-only" for="singin-email">邮箱</label>
+            <label class="control-label sr-only" for="singin-username">用户名</label>
             <div class="input-group">
               <span class="input-group-addon "><span class="glyphicon glyphicon-user"></span></span>
-              <input type="input" class="form-control input-lg" id="signin-email"
-               autofocus="autofocus" required="required" placeholder="邮箱"> </input>
+              <input type="input" class="form-control input-lg" name="signin-username"id="signin-username"
+               autofocus="autofocus"  placeholder="用户名">
             </div>
           </div>
           <div class="form-group" >
             <label class="control-lable sr-only" for="signup-password">密码</label>
             <div class="input-group">
               <span class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></span>
-              <input type="password" class="form-control input-lg" id="signup-password"
-               autofocus="autofocus" required="required" placeholder="密码"></input>
+              <input type="password" class="form-control input-lg" name="signin-password"id="signup-password"
+               autofocus="autofocus"  placeholder="密码">
             </div>
           </div>
           <div class="checkbox">
@@ -87,31 +101,9 @@
             记住密码
           </label>
           </div>
-        <button type="button" id="signin-btn" class="btn btn-success btn-lg btn-block" style="margin-top:30px;">登录</button>
+        <input type="submit" id="signin-btn" class="btn btn-success btn-lg btn-block" style="margin-top:30px;"value="登录">
         </form>
-        <!--注册-->
-        <form id="signup">
-          <div class="form-group">
-            <label class="control-label sr-only">邮箱</label>
-            <div class="input-group">
-              <span class="input-group-addon"><span class="glyphicon glyphicon-email"></span></span>
-              <input type="input" id="signup-email" class="form-control input-lg"
-              autofocus="autofocus" required="required" placeholder="请输入邮箱"></input>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="control-label sr-only">昵称</label>
-            <div class="input-group">
-              <span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>
-              <input type="input" id="signup-user" class="form-control input-lg" 
-               required="required" placeholder="请输入昵称" ></input>
-            </div>
-          </div>
-          <div class="form-group">
-            
-            
-          </div>
-        </form>
+        
       </div>
     	<div class="sign-sns"></div>
     </div>

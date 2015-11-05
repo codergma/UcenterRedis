@@ -8,7 +8,7 @@ class Portal extends CI_Controller{
 		parent::__construct();
 		$this->load->model('portal_model');
 		$this->load->model('sign_model');
-		$this->load->helper('url_helper');
+		$this->load->helper('form','url','url_helper');
         $this->load->library('CG_base');
         $this->redis = new Redis();
         $this->redis->connect(REDIS_ADDR,REDIS_PORT);
@@ -24,6 +24,6 @@ class Portal extends CI_Controller{
 				return;
 			}
 		}
-		$this->load->view('sign/sign_redis');
+		$this->load->view('sign/sign');
 	}
 }

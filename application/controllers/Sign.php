@@ -1,23 +1,23 @@
 <?php
 defined('BASEPATH') or die('No direct script access allowed');
-use Monolog\Logger;
-use Monolog\Handler\StreamHandler;
-use Monolog\Handler\FirePHPHandler;
+//use Monolog\Logger;
+//use Monolog\Handler\StreamHandler;
+//use Monolog\Handler\FirePHPHandler;
 class Sign extends CI_Controller{
 	private $redis = null;
 	public function __construct()
 	{
 		parent::__construct();
 		$this->load->model('sign_model');
-		$this->load->helper('url_helper');
+		$this->load->helper(array('form', 'url','url_helper'));
 		$this->load->library('CG_base');
 		$this->load->library('email');
 		$this->redis = new Redis();
 		$this->redis->connect(REDIS_ADDR,REDIS_PORT);
 
-        $this->logger = new Logger('my_logger');
-        $this->logger->pushHandler(new StreamHandler(__DIR__.'/../logs/my_app.log', Logger::DEBUG));
-        $this->logger->pushHandler(new FirePHPHandler());
+        // $this->logger = new Logger('my_logger');
+        // $this->logger->pushHandler(new StreamHandler(__DIR__.'/../logs/my_app.log', Logger::DEBUG));
+        // $this->logger->pushHandler(new FirePHPHandler());
 	}
 
 	public function index()
@@ -31,7 +31,7 @@ class Sign extends CI_Controller{
             return;
 		}
 
-		$this->load->view('sign/sign_redis');
+		$this->load->view('sign/sign');
 	}
 	public function index_modify_passwd($flag)
 	{
@@ -111,17 +111,31 @@ class Sign extends CI_Controller{
 	//登录接口
 	public function signin()
 	{
+
+        $this->load->library('form_validation');
+        $this->form_validation->set_rules('signin-username','用户名','required',array('required' => '你必须要提供一个%s.'));
+        $this->form_validation->set_rules('signin-password','密码',  'required',array('required'=>'你必须要提供一个%s.'));
+
+        if ($this->form_validation->run() == FALSE)
+        {
+            $this->load->view('sign/sign');
+        }
+        else
+        {
+            $this->load->view('formsuccess');
+        }
+        /*
         $this->logger->addInfo('My logger is now ready');
 		
-		$login_username = addslashes(trim($this->input->post('login_username')));
-		$login_passwd   = addslashes(trim($this->input->post('login_passwd')));
-		$user = $this->sign_model->get_user_by_username($login_username);
+		$signin_username   = addslashes(trim($this->input->post('signin-username')));
+		$signin_password   = addslashes(trim($this->input->post('signin-password')));
+		$user = $this->sign_model->get_user_by_username($signin_username);
 
 		//检查用户名是否存在
 		if(empty($user))
 		{
 	      $this->cg_base->echo_json(-1,"username dose not exists");
-            return;
+          return;
 		} 
 		//检查登录错误次数
 		$fail_num = $this->get_fail_count($login_username);
@@ -159,6 +173,7 @@ class Sign extends CI_Controller{
 		    $this->cg_base->echo_json(-1," 还剩{$count}次机会");
 		}
 		$this->logger->addInfo('My logger is now ready');
+		*/
 	}
 
 	//登出
