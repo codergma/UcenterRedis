@@ -5,6 +5,20 @@ defined('BASEPATH') or die('No direct script access allowed');
 //use Monolog\Handler\FirePHPHandler;
 class Sign extends CI_Controller{
 	private $redis = null;
+	private $error_msg = array(
+		-1=>'用户名不能为空',
+		-2=>'密码不能为空',
+		-3=>'用户名必须是6-32位字母数字下划线',
+		-4=>'密码必须是至少包含字母和数字的6-16位字符串',
+		-5=>'用户名不存在',
+		-6=>'登录错误次数过多',
+		-7=>'用户名和密码不一致',
+		-8=>'邮箱不能为空',
+		-9=>'邮箱格式不正确',
+		-10=>'用户名已经存在',
+		-11=>'邮箱已经被注册',
+		1 =>'登录成功'
+		);
 	public function __construct()
 	{
 		parent::__construct();
@@ -47,17 +61,20 @@ class Sign extends CI_Controller{
 	//注册接口
 	public function signup()
 	{
-		$username  = $this->input->post('username');
-		$email     = $this->input->post('email');
-		$password  = $this->input->post('password');
-		$password2 = $this->input->post('password2');
+		$signup_email     = $this->input->post('signup-email');
+		$signup_username  = $this->input->post('signup-username');
+		$signup_password  = $this->input->post('signup-password');
 
-        check_signup($username,$email,$password);
-		
 		//输入信息过滤
-		$username = addslashes(trim($username));
-		$email    = addslashes(trim($email));
-		$password = addslashes(trim($password));
+		$email = addslashes(trim($signup_email));
+		$username    = addslashes(trim($signup_username));
+		$password = addslashes(trim($signup_password));
+
+        if(!$this->validate_signup($email,$username,$password))
+        {
+        	return false;
+        }
+		
 		$regip    = $this->cg_base->real_ip();
 		//用户信息写入数据库
 		$result = $this->sign_model->add_user($username,$email,$password,$regip);
@@ -111,45 +128,35 @@ class Sign extends CI_Controller{
 	//登录接口
 	public function signin()
 	{
-
-        $this->load->library('form_validation');
-        $this->form_validation->set_rules('signin-username','用户名','required',array('required' => '你必须要提供一个%s.'));
-        $this->form_validation->set_rules('signin-password','密码',  'required',array('required'=>'你必须要提供一个%s.'));
-
-        if ($this->form_validation->run() == FALSE)
-        {
-            $this->load->view('sign/sign');
-        }
-        else
-        {
-            $this->load->view('formsuccess');
-        }
-        /*
-        $this->logger->addInfo('My logger is now ready');
-		
 		$signin_username   = addslashes(trim($this->input->post('signin-username')));
 		$signin_password   = addslashes(trim($this->input->post('signin-password')));
-		$user = $this->sign_model->get_user_by_username($signin_username);
 
+		$validation = $this->validate_signin($signin_username,$signin_password);
+		if (!$validation)
+		{
+			return ;
+		}
+
+		$user = $this->sign_model->get_user_by_username($signin_username);
 		//检查用户名是否存在
 		if(empty($user))
 		{
-	      $this->cg_base->echo_json(-1,"username dose not exists");
+	      $this->cg_base->echo_json(-5,$this->error_msg[-5]);
           return;
 		} 
 		//检查登录错误次数
-		$fail_num = $this->get_fail_count($login_username);
+		$fail_num = $this->get_fail_count($signin_username);
 		if ($fail_num >= MAX_ERR_NUM)
 		{
-			$this->set_fail_count($login_username);
-			$ttl = $this->get_ttl($login_username);
+			$this->set_fail_count($signin_username);
+			$ttl = $this->get_ttl($signin_username);
 			$ttl = ceil($ttl/60);
-			$this->cg_base->echo_json(-1,"Fail too many times, please login again after {$ttl} minutes ");
+			$this->cg_base->echo_json(-6,$this->error_msg[-6].", 请{$ttl}分钟后重试");
             return ;
 		}
 	    //验证密码		
-		$login_passwd = md5(md5($login_passwd).$user->salt);
-		if ($login_passwd == $user->password)
+        $signin_password = md5(md5($signin_password).$user->salt);
+		if ($signin_password == $user->password)
 		{
 			$last_signin_ip = $this->cg_base->real_ip();
 			$this->sign_model->update_signin($last_signin_ip,time(),$user->username);
@@ -162,18 +169,17 @@ class Sign extends CI_Controller{
 				"username"=>$user->username,
 				"email"=>$user->email
 				);
-			$test = $this->redis->setex($key,EXPIRE,json_encode($value));
+			$this->redis->setex($key,EXPIRE,json_encode($value));
 
-		    $this->cg_base->echo_json(1,"signin success");
+		    $this->cg_base->echo_json(1,$this->error_msg[1]);
 		}
 		else
 		{
-			$this->set_fail_count($login_username);
-			$count = 5 - $this->get_fail_count($login_username);
-		    $this->cg_base->echo_json(-1," 还剩{$count}次机会");
+			$this->set_fail_count($signin_username);
+			$count = 5 - $this->get_fail_count($signin_username);
+		    $this->cg_base->echo_json(-7,$this->error_msg[-7].", 还剩{$count}次机会");
+            return ;
 		}
-		$this->logger->addInfo('My logger is now ready');
-		*/
 	}
 
 	//登出
@@ -252,58 +258,82 @@ class Sign extends CI_Controller{
 		$this->cg_base->echo_json(1,'sucess');
 		$this->redis->del($reset_flag);
 
-
 	}
 
 	//验证注册数据是否合法
-	protected function check_signup($username,$email,$password)
+	protected function validate_signup($email,$username,$password)
 	{
-		if (!$this->check_username_formate($username))
+		if (empty($email))
 		{
-			$this->cg_base->echo_json(-1,'username is illegal');
-			exit;
+			$this->cg_base->echo_json(-8,$this->error_msg[-8]);
+			return false;
 		}
 		if (!$this->check_email_formate($email)) 
 		{
-			$this->cg_base->echo_json(-1,'email is illegal');
-			exit;
+			$this->cg_base->echo_json(-9,$this->error_msg[-9]);
+			return false;
 		}
-		if (!$this->check_password_formate($password)) 
+		if(!$this->validate_signin($username,$password))
 		{
-			$this->cg_base->echo_json(-1,'password is illegal');
-			exit;
+			return false;
 		}
 		//检查用户名是否已经注册
 		if ($this->sign_model->check_username_exists($username))
 		{
-			$this->cg_base->echo_json(-1,"username is exists");
-			exit;
+			$this->cg_base->echo_json(-10,$this->error_msg[-10]);
+			return false;
 		}
 		//检查邮箱是否已经注册
 		if ($this->sign_model->check_email_exists($email))
 		{
-			$this->cg_base->echo_json(-1,"email is exists");
-			exit;
+			$this->cg_base->echo_json(-11,$this->error_msg[-11]);
+			return false;
 		}
+		return true;
+	}
+	//检查用户登录数据合法性
+	protected function validate_signin($username,$password)
+	{
+		if (empty($username))
+		{
+			$this->cg_base->echo_json(-1,$this->error_msg[-1]);
+			return false;
+		}
+		if (empty($password))
+		{
+			$this->cg_base->echo_json(-2,$this->error_msg[-2]);
+			return false;
+		}
+		if (!$this->check_username_formate($username))
+		{
+			$this->cg_base->echo_json(-3,$this->error_msg[-3]);
+			return false;
+		}
+		if (!$this->check_password_formate($password))
+		{
+			$this->cg_base->echo_json(-4,$this->error_msg[-4]);
+			return false;
+		}
+		return true;
 	}
 	//检查用户名格式
 	public function check_username_formate($username)
 	{
-		return preg_match('/^[0-9A-Za-z_]{6,32}$/', $username);
+		$res = preg_match('/^[0-9A-Za-z_]{6,32}$/', $username);
+		return $res ? true:false;
 	}
 	//检查邮件格式
 	public function check_email_formate($email)
 	{
-    return preg_match('/^([0-9A-Za-z]+)([0-9a-zA-Z_-]*)@([0-9A-Za-z]+).([A-Za-z]+)$/',$email);
-
+    	$res = preg_match('/^([0-9A-Za-z]+)([0-9a-zA-Z_-]*)@([0-9A-Za-z]+).([A-Za-z]+)$/',$email);
+    	return $res;
 	}
 	//检查密码格式
 	public function check_password_formate($password)
 	{
-    return preg_match('/[a-zA-Z]+/', $password) && preg_match('/[0-9]+/',$password) && preg_match('/[\s\S]{6,16}$/',$password);
+	    $res = preg_match('/[a-zA-Z]+/', $password) && preg_match('/[0-9]+/',$password) && preg_match('/[\s\S]{6,16}$/',$password);
+	    return $res;
 	}
-
-	
 	//根据redis判断用户是否在线
 	public function check_signin()
 	{
