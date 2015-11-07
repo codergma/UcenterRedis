@@ -61,9 +61,9 @@
       </div>
     	<h4 class="title text-center">
         <span>
-          <a href="##" id="link-signin" style="color:#000;">登录</a>
+          <a href="javascript:void(0);" id="link-signin" style="color:#000;">登录</a>
           <b class="text-muted">·</b>
-          <a href="##" id="link-signup" class="text-muted" href="##">注册</a>
+          <a href="javascript:void(0);" id="link-signup" class="text-muted" href="##">注册</a>
         </span>
       </h4>
 

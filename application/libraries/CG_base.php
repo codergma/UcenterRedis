@@ -2,8 +2,15 @@
 defined('BASEPATH') or die('No direct script access allowe');
 require_once 'PHPMailer.php';
 require_once 'SMTP.php';
-
 class CG_base{
+
+private $redis = null;
+private $logger = null;
+
+public function __construct()
+{
+
+}
 
 /**
  * 获取用户真是ip
@@ -12,65 +19,65 @@ class CG_base{
  */
 public function real_ip()
 {
-			static $real_ip = NULL;
+	static $real_ip = NULL;
 
-			if($real_ip != NULL)
+	if($real_ip != NULL)
+	{
+		return $real_ip;
+	}
+
+	if(isset($_SERVER))
+	{
+		if(isset($_SERVER['HTTP_X_FORWARDED_FOR']))
+		{
+			$arr = explode(',',$_SERVER['HTTP_X_FORWARDED_FOR']);
+
+			foreach($arr AS $ip)
 			{
-				return $real_ip;
+				$ip = trim($ip);
+
+				if($ip != 'unknow')
+				{
+					$realip = ip;
+					break;
+				}
 			}
-
-			if(isset($_SERVER))
+		}
+		elseif(isset($_SERVER['HTTP_CLIENT_IP']))
+		{
+			$realip = $_SERVER['HTTP_CLIENT_IP'];
+		}
+		else
+		{
+			if(isset($_SERVER['REMOTE_ADDR']))
 			{
-				if(isset($_SERVER['HTTP_X_FORWARDED_FOR']))
-				{
-					$arr = explode(',',$_SERVER['HTTP_X_FORWARDED_FOR']);
-
-					foreach($arr AS $ip)
-					{
-						$ip = trim($ip);
-
-						if($ip != 'unknow')
-						{
-							$realip = ip;
-							break;
-						}
-					}
-				}
-				elseif(isset($_SERVER['HTTP_CLIENT_IP']))
-				{
-					$realip = $_SERVER['HTTP_CLIENT_IP'];
-				}
-				else
-				{
-					if(isset($_SERVER['REMOTE_ADDR']))
-					{
-						$realip = $_SERVER['REMOTE_ADDR'];
-					}
-					else
-					{
-						$realip = '0.0.0.0';
-					}
-				}
+				$realip = $_SERVER['REMOTE_ADDR'];
 			}
 			else
 			{
-				if(getenv('HTTP_X_FORWARDED_FOR'))
-				{
-					$realip = getenv('HTTP_X_FORWARDED_FOR');
-				}
-				elseif(getenv('HTTP_CLIENT_IP'))
-				{
-					$realip = getenv('HTTP_CLIENT_IP');
-				}
-				else
-				{
-					$realip = getenv('REMOTE_ADDR');
-				}
+				$realip = '0.0.0.0';
 			}
+		}
+	}
+	else
+	{
+		if(getenv('HTTP_X_FORWARDED_FOR'))
+		{
+			$realip = getenv('HTTP_X_FORWARDED_FOR');
+		}
+		elseif(getenv('HTTP_CLIENT_IP'))
+		{
+			$realip = getenv('HTTP_CLIENT_IP');
+		}
+		else
+		{
+			$realip = getenv('REMOTE_ADDR');
+		}
+	}
 
-			preg_match("/[\d\.]{7,15}/",$realip,$onlineip);
-			$realip = !empty($onlineip[0]) ?$onlineip[0] : '0.0.0.0';
-			return $realip;
+	preg_match("/[\d\.]{7,15}/",$realip,$onlineip);
+	$realip = !empty($onlineip[0]) ?$onlineip[0] : '0.0.0.0';
+	return $realip;
 }
 
 /**
@@ -121,8 +128,26 @@ public function send_mail($host,$from,$from_password,$to,$subject,$body)
 	} catch (phpmailerException $e) {
 		echo $mail->ErrorInfo;
 	}
-
 }
+/**
+ * 获取redis对象
+ */
+public function get_redis()
+{
+	if ($this->redis != NULL)
+	{
+		return $this->redis;
+	}
+	$this->redis = new Redis();
+	$res = $this->redis->connect(REDIS_ADDR,REDIS_PORT);
+	if (!$res)
+	{
+		log_message('error', 'can not to connect redis',False);
+		return  null;
+	}
+	return  $this->redis;
+}
+
 
 
 

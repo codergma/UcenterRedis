@@ -1,8 +1,6 @@
 <?php
 defined('BASEPATH') or die('No direct script access allowed');
-//use Monolog\Logger;
-//use Monolog\Handler\StreamHandler;
-//use Monolog\Handler\FirePHPHandler;
+
 class Sign extends CI_Controller{
 	private $redis = null;
 	private $error_msg = array(
@@ -26,12 +24,7 @@ class Sign extends CI_Controller{
 		$this->load->helper(array('form', 'url','url_helper'));
 		$this->load->library('CG_base');
 		$this->load->library('email');
-		$this->redis = new Redis();
-		$this->redis->connect(REDIS_ADDR,REDIS_PORT);
-
-        // $this->logger = new Logger('my_logger');
-        // $this->logger->pushHandler(new StreamHandler(__DIR__.'/../logs/my_app.log', Logger::DEBUG));
-        // $this->logger->pushHandler(new FirePHPHandler());
+		$this->redis = $this->cg_base->get_redis();
 	}
 
 	public function index()
