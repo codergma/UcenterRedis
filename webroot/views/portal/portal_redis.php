@@ -5,7 +5,7 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name='viewport' content="width=device-width,initial-scale=1">
 	<title>redis</title>
-	<link rel="stylesheet" type="text/css" href="/BootStrap/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="/bootstrap/css/bootstrap.min.css">
 </head>
 <body>
 <nav class="navbar navbar-default">
@@ -68,7 +68,7 @@
 </div>
 
 <script type="text/javascript" src="/js/jq.js"></script>
-<script type="text/javascript" src="/BootStrap/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/bootstrap/js/bootstrap.min.js"></script>
 <script type="text/javascript">
 	$(document).ready(function(){
 		$('#signout').bind('click',function(){

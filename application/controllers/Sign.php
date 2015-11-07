@@ -21,7 +21,7 @@ class Sign extends CI_Controller{
 	{
 		parent::__construct();
 		$this->load->model('sign_model');
-		$this->load->helper(array('form', 'url','url_helper'));
+		$this->load->helper('form');
 		$this->load->library('CG_base');
 		$this->load->library('email');
 		$this->redis = $this->cg_base->get_redis();
