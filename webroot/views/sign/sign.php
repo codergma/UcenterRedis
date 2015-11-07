@@ -47,6 +47,11 @@
       width:700px;
       margin:0 auto;
     }
+    #forget-password{
+      padding-left:150px;
+      color: #333;
+      text-decoration:none;
+    }
     </style>
   </head>
   <body>
@@ -88,13 +93,15 @@
                required="required"autofocus="autofocus"  placeholder="密码" value="<?php echo set_value('signin-password'); ?>">
             </div>
           </div>
-          <div class="checkbox">
-          <label>
-            <input type="checkbox" checked="checked">
-            记住密码
-          </label>
+          <div class="checkbox" style="display:inline-block;">
+            <label>
+              <input type="checkbox" checked="checked" >
+              记住密码
+            </label>
           </div>
-        <input type="submit" name="signin" id="signin-btn" class="btn btn-success btn-lg btn-block" style="margin-top:30px;" value="登录">
+          <a id='forget-password'href='javaScript:void(0);'>忘记密码?</a>
+          
+        <input type="submit" name="signin" id="signin-btn" class="btn btn-success btn-lg btn-block" style="margin-top:30px;outline:none;" value="登录">
         </form>
        <!--注册-->
         <?php
@@ -130,6 +137,22 @@
     	<div class="sign-sns"></div>
     </div>
   </div>
+<!-- 忘记密码模态窗体 -->
+<div class="modal fade bs-example-modal-sm" id='modal-forget-password'tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+         通过注册邮箱重置密码 
+      </div>
+      <div class="modal-body">
+        <input type="text" class='form-control' placeholder='请填写注册邮箱'>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success">发送邮件</button>
+      </div>
+    </div>
+  </div>
+</div>
 
     <script src="/jquery/jquery-1.11.3.min.js"></script>
     <script src="/jquery/jquery.form.js"></script>
@@ -137,6 +160,7 @@
     <script type="text/javascript">
     $(document).ready(function(){
 
+      //切换登录和注册页面
       $("#link-signin").on('click',function(){
         $(this).css('color','#000');
         $('#link-signup').css('color',"#777");
@@ -148,6 +172,10 @@
         $('#link-signin').css('color',"#777");
         $('#signup').show();
         $('#signin').hide();
+      });
+      //忘记密码
+      $('#forget-password').on('click',function(){
+        $('#modal-forget-password').modal();
       });
       // jquery.form.js插件发送登录请求
       $("#signin").ajaxForm({
