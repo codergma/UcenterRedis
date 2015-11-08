@@ -8,7 +8,7 @@
     <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <style type="text/css">
     .sign-page{
-      padding-top: 125px;
+      padding-top: 100px;
       padding-bottom: 50px;
       width: 940px;
       margin: 0 auto;
@@ -41,7 +41,7 @@
     }
     .sign-container{
       padding: 0 320px;
-      padding-bottom: 50px;     
+      padding-bottom: 20px;     
     }
     .error{
       width:700px;
@@ -52,14 +52,14 @@
       color: #333;
       text-decoration:none;
     }
+    #error-msg{
+      margin-top: 50px;
+      width:300px;
+    }
     </style>
   </head>
   <body>
   <div class="container">
-    <div id="error_msg" class="alert alert-warning alert-dismissible error text-center" style="display:none;">
-      <button type="button" class="close" data-dismiss="alert" ><span >&times;</span></button>
-    </div>
-
     <div class="sign-page">
     	<div class="logo text-center">
        share 
@@ -71,8 +71,11 @@
           <a href="javascript:void(0);" id="link-signup" class="text-muted" href="##">注册</a>
         </span>
       </h4>
-
+    
     	<div class="sign-container">
+        <div id="error-msg" class="alert alert-warning alert-dismissible error text-center" style="display:none;">
+          <button type="button" class="close" data-dismiss="alert" ><span >&times;</span></button>
+        </div>
         <!--登录-->
         <?php
           echo form_open('sign/signin',"id='signin'");
@@ -145,10 +148,10 @@
          通过注册邮箱重置密码 
       </div>
       <div class="modal-body">
-        <input type="text" class='form-control' placeholder='请填写注册邮箱'>
+        <input id="reset-password-email"type="text" class='form-control' placeholder='请填写注册邮箱'>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-success">发送邮件</button>
+        <button id="btn-send-email"type="button" class="btn btn-success">发送邮件</button>
       </div>
     </div>
   </div>
@@ -173,10 +176,6 @@
         $('#signup').show();
         $('#signin').hide();
       });
-      //忘记密码
-      $('#forget-password').on('click',function(){
-        $('#modal-forget-password').modal();
-      });
       // jquery.form.js插件发送登录请求
       $("#signin").ajaxForm({
         type:'post',
@@ -184,13 +183,13 @@
         success:function(result){
           if (result.num > 0)
             {
-              $("#error_msg").hide();
+              $("#error-msg").hide();
               alert('success');
             }
             else
             {
-              $("#error_msg p").remove();
-              $('#error_msg').append("<p>"+result.msg+"</p>").show();
+              $("#error-msg p").remove();
+              $('#error-msg').append("<p>"+result.msg+"</p>").show();
             }
         }
       });
@@ -201,15 +200,33 @@
         success:function(result){
           if (result.num > 0)
            {
-              $("#error_msg").hide();
+              $("#error-msg").hide();
               alert('success');
            }
           else
           {
-              $("#error_msg p").remove();
-              $('#error_msg').append("<p>"+result.msg+"</p>").show();
+              $("#error-msg p").remove();
+              $('#error-msg').append("<p>"+result.msg+"</p>").show();
           }
         }
+      });
+      //忘记密码
+      $('#forget-password').on('click',function(){
+        $('#modal-forget-password').modal();
+      });
+      //发送重置密码邮件
+      $('#btn-send-email').on('click',function(){
+        var url = "<?php echo $this->config->base_url();?>" + "sign/modify_password";
+        var data = {"email":$('#reset-password-email').val()};
+        $.ajax({
+          url:url,
+          type:'post',
+          data:data,
+          dataType:'json',
+          success:function(result){
+          }
+        });
+
       });
     });
     </script>

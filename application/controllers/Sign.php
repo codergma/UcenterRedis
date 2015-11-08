@@ -163,6 +163,7 @@ class Sign extends CI_Controller{
 				"email"=>$user->email
 				);
 			$this->redis->setex($key,EXPIRE,json_encode($value));
+			$this->reset_fail_count($signin_username);
 
 		    $this->cg_base->echo_json(1,$this->error_msg[1]);
 		}
@@ -357,6 +358,18 @@ class Sign extends CI_Controller{
 		if ($this->redis->exists($key))
 		{
 			return $this->redis->get($key);
+		}else
+		{
+			return 0;
+		}
+	}
+	//登录成功，重置登录错误次数　
+	protected function reset_fail_count($username)
+	{
+		$key = md5($username.'sign_fail');
+		if ($this->redis->exists($key))
+		{
+			return $this->redis->setex($key,EXPIRE,0);
 		}else
 		{
 			return 0;
