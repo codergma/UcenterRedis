@@ -134,6 +134,9 @@
                required="required" placeholder="请输入密码">
             </div>
           </div>
+         <div  style="position:relative;top:-60px;left:300px;border:1px solid red;width:250px;height:40px;">
+            <img class="img-responsive"style=""src="/img/sign.png">
+         </div> 
           <input type="submit" class="btn btn-success btn-lg btn-block text-center" id="btn-signup" value="注册">
         </form> 
       </div>

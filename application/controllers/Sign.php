@@ -20,10 +20,11 @@ class Sign extends CI_Controller{
 	public function __construct()
 	{
 		parent::__construct();
+		$helper = array('form','captcha');
+		$lib    = array('CG_base','email');
+		$this->load->helper($helper);
+		$this->load->library($lib);
 		$this->load->model('sign_model');
-		$this->load->helper('form');
-		$this->load->library('CG_base');
-		$this->load->library('email');
 		$this->redis = $this->cg_base->get_redis();
 	}
 
