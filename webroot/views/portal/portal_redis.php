@@ -46,7 +46,7 @@
         <button type="submit" class="btn btn-default">Submit</button>
       </form>
       <ul class="nav navbar-nav navbar-right">
-        <li><a href="#" id="signout">登出</a></li>
+        <li><a href="javaScript:void(0);" id="signout">登出</a></li>
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
           <ul class="dropdown-menu">
@@ -67,7 +67,7 @@
 	<h1 style="margin-top:51px;">Welcome redis!!!</h1>
 </div>
 
-<script type="text/javascript" src="/js/jq.js"></script>
+<script type="text/javascript" src="/jquery/jquery-1.11.3.min.js"></script>
 <script type="text/javascript" src="/bootstrap/js/bootstrap.min.js"></script>
 <script type="text/javascript">
 	$(document).ready(function(){

@@ -184,7 +184,7 @@
           if (result.num > 0)
             {
               $("#error-msg").hide();
-              alert('success');
+              window.location.href = "<?php echo $this->config->base_url();?>"+"portal/index";
             }
             else
             {
