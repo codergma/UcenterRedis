@@ -20,7 +20,7 @@ class Portal extends CI_Controller{
 		{
 			if($this->redis->exists($_COOKIE['uid']))
 			{
-				$this->load->view('portal/portal_redis');
+				$this->load->view('portal/portal');
 				return;
 			}
 		}
