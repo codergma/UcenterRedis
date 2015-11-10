@@ -96,6 +96,15 @@
                required="required"autofocus="autofocus"  placeholder="密码" value="<?php echo set_value('signin-password'); ?>">
             </div>
           </div>
+          <div style="max-width:150px;position:relative;">
+              <input type="text" class="form-control input-lg" name="signin-captcha"id="signup-captcha"
+               required="required"placeholder="验证码" >
+              <div style="position:absolute; top:3px;left:160px;border:1px solid red;width:150px;height:40px;">
+                <img class="img-responsive"src="">
+              </div>
+          </div>
+    
+   
           <div class="checkbox" style="display:inline-block;">
             <label>
               <input type="checkbox" checked="checked" >
@@ -103,7 +112,6 @@
             </label>
           </div>
           <a id='forget-password'href='javaScript:void(0);'>忘记密码?</a>
-          
         <input type="submit" name="signin" id="signin-btn" class="btn btn-success btn-lg btn-block" style="margin-top:30px;outline:none;" value="登录">
         </form>
        <!--注册-->
@@ -134,8 +142,8 @@
                required="required" placeholder="请输入密码">
             </div>
           </div>
-         <div  style="position:relative;top:-60px;left:300px;border:1px solid red;width:250px;height:40px;">
-            <img class="img-responsive"style=""src="/img/sign.png">
+         <div  style="position:relative;top:-58px;left:320px;border:1px solid red;width:200px;height:40px;">
+            <img class="img-responsive"style=""src="">
          </div> 
           <input type="submit" class="btn btn-success btn-lg btn-block text-center" id="btn-signup" value="注册">
         </form> 
