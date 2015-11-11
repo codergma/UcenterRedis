@@ -39,7 +39,7 @@ class Sign extends CI_Controller{
 		    header('location:/portal/index');
             return;
 		}
-		$cap = $this->gen_captcha();
+		$cap = $this->_gen_captcha();
 		$captcha = array('captcha'=>$cap);
 
 		$this->load->view('sign/sign',$captcha);
@@ -398,11 +398,11 @@ class Sign extends CI_Controller{
 	 *
 	 *
 	*/
-	protected function gen_captcha()
+	private function _gen_captcha()
 	{
 		$vals = array(
 	    'img_path'  => $this->config->item('root_path').'captcha/',
-	    'img_url'   => base_url().'/captcha/',
+	    'img_url'   => base_url('captcha'),
 	    'font_path' => $this->config->item('root_path').'font/SIMYOU.TTF',
 	    'img_width' => 140,
 	    'img_height'=> 40,
@@ -423,6 +423,12 @@ class Sign extends CI_Controller{
 
 		$cap = create_captcha($vals);
 		return $cap;
+	}
+	//对外接口
+	public function gen_captcha()
+	{
+		$cap = $this->_gen_captcha();
+		$this->cg_base->echo_json(true,"success",$cap);
 	}
 
 

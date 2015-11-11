@@ -85,11 +85,12 @@ public function real_ip()
  *
  *
  */
-public function echo_json($num=1,$msg="")
+public function echo_json($status=1,$msg="",$data=NULL)
 {
 	$result = array(
-				 "num"=>$num,
-				 "msg"=>$msg
+				 "status"=>$status,
+				 "msg"=>$msg,
+				 "data"=>$data
 			);
 
 	echo json_encode($result);

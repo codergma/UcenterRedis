@@ -78,7 +78,7 @@
 				type:'post',
 				dataType:'json',
 				success:function(result){
-					if (true == result.num)
+					if (true ==  result.status)
 					{
 						window.location.href = '/sign/index';
 					};

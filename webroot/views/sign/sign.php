@@ -56,6 +56,12 @@
       margin-top: 50px;
       width:300px;
     }
+    #signin-gen-cap,#signup-gen-cap{
+      margin-left:180px;
+    }
+    #btn-signup{
+      margin-top: 10px;
+    }
     </style>
   </head>
   <body>
@@ -97,12 +103,14 @@
             </div>
           </div>
           <div style="max-width:150px;position:relative;">
-              <input type="text" class="form-control input-lg" name="signin-captcha"id="signup-captcha"
+              <input type="text" class="form-control input-lg" name="signin-captcha"id="signin-captcha"
                required="required"placeholder="验证码" >
-              <div style="position:absolute; top:3px;left:160px;width:140px;height:40px;">
+              <div id='signin-cap-container'style="position:absolute; top:3px;left:160px;width:140px;height:40px;">
                 <?php echo $captcha['image'];?>
               </div>
           </div>
+        <a id='signin-gen-cap'href="javaScript:void(0);">看不清楚？换一张</a>
+        <input type="submit" name="signin" id="signin-btn" class="btn btn-success btn-lg btn-block" style="margin-top:30px;outline:none;" value="登录">
           <div class="checkbox" style="display:inline-block;">
             <label>
               <input type="checkbox" checked="checked" >
@@ -110,7 +118,6 @@
             </label>
           </div>
           <a id='forget-password'href='javaScript:void(0);'>忘记密码?</a>
-        <input type="submit" name="signin" id="signin-btn" class="btn btn-success btn-lg btn-block" style="margin-top:30px;outline:none;" value="登录">
         </form>
        <!--注册-->
         <?php
@@ -141,12 +148,13 @@
             </div>
           </div>
           <div style="max-width:150px;position:relative;">
-              <input type="text" class="form-control input-lg" name="signin-captcha"id="signup-captcha"
+              <input type="text" class="form-control input-lg" name="signup-captcha"id="signup-captcha"
                required="required"placeholder="验证码" >
-              <div style="position:absolute; top:3px;left:160px;width:140px;height:40px;">
+              <div id='signup-cap-container'style="position:absolute; top:3px;left:160px;width:140px;height:40px;">
                 <?php echo $captcha['image'];?>
               </div>
           </div>
+        <a id='signup-gen-cap'href="javaScript:void(0);">看不清楚？换一张</a>
           <input type="submit" class="btn btn-success btn-lg btn-block text-center" id="btn-signup" value="注册">
         </form> 
       </div>
@@ -194,7 +202,7 @@
         type:'post',
         dataType:'json',
         success:function(result){
-          if (result.num > 0)
+          if ( result.status > 0)
             {
               $("#error-msg").hide();
               window.location.href = "<?php echo $this->config->base_url();?>"+"portal/index";
@@ -211,7 +219,7 @@
         type:'post',
         dataType:'json',
         success:function(result){
-          if (result.num > 0)
+          if ( result.status > 0)
            {
               $("#error-msg").hide();
               alert('success');
@@ -229,7 +237,7 @@
       });
       //发送重置密码邮件
       $('#btn-send-email').on('click',function(){
-        var url = "<?php echo $this->config->base_url();?>" + "sign/modify_password";
+        var url = "<?php echo base_url('sign/modify_password');?>";
         var data = {"email":$('#reset-password-email').val()};
         $.ajax({
           url:url,
@@ -239,9 +247,35 @@
           success:function(result){
           }
         });
-
       });
+      //登录页面更换验证码图片
+      $('#signin-gen-cap').on('click',function(){
+        gen_captcha('#signin-cap-container');
+      });
+      //注册页面更换验证码图片
+      $('#signup-gen-cap').on('click',function(){
+        gen_captcha('#signup-cap-container');
+      });
+
     });
+  //获取验证码
+  function gen_captcha(id)
+  {
+    var url = "<?php echo base_url('sign/gen_captcha');?>";
+    $.ajax({
+      "url":url,
+      "type":'post',
+      "dataType":'json',
+      "success":function(result){
+        if (result.status){
+         var image = result.data.image; 
+         $(id+" img").remove();
+         $(id).append(image);
+        };
+      }
+    });
+  }
     </script>
+  }
   </body>
 </html>

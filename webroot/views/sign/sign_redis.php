@@ -252,7 +252,7 @@ $(document).ready(function()
             data:data,
             dataType:'json',
             success:function(result){
-                if (true == result.num) 
+                if (true ==  result.status) 
                 {
                     alert('注册成功');
                 };
@@ -302,7 +302,7 @@ $(document).ready(function()
             data:data,
             dataType:'json',
             success:function(result){
-                if (true == result.num)
+                if (true ==  result.status)
                 {
                     window.location.href = "/portal/index";
                 }else{

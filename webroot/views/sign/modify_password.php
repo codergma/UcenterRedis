@@ -102,7 +102,7 @@ body{
 				type:'post',
 				dataType:'json',
 				success:function(result){
-					if (result.num = 1)
+					if (result.status = 1)
 					{
 						count_time = 5;
 						clear_interval = window.setInterval(ramain_time,1000);
