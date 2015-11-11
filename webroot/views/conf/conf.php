@@ -60,6 +60,31 @@
 			</tbody>
 		</table>
 	</div>
+	<div class="h3">生成验证码</div>
+	<div class="table-reponsive">
+		<table class="table table-bordered text-center">
+			<thead>
+				<th>key</th>
+				<th>value</th>
+			</thead>
+			<tbody>
+			<?php
+				$i = 0;
+				foreach ($captcha as $key => $value)
+				{
+					$tr_class = $i%2 ? 'active':'success';
+					$html = "<tr class='".$tr_class."'>";
+					$html .= "<td>".$key."</td>";
+					$html .= "<td>".$value."</td>";
+					$html .= "</tr>";
+					$i++;
+					echo $html;
+				}
+			?>
+
+			</tbody>
+		</table>
+	</div>
 </div>
     <script src="/jquery/jquery-1.11.3.min.js"></script>
     <script src="/jquery/jquery.form.js"></script>

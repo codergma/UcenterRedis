@@ -26,10 +26,34 @@ class Conf extends CI_Controller
 		$path = array(
 			"set_realpath()"=>set_realpath('.',TRUE),
 			);
+		//生成验证码
+		$this->load->helper('captcha');
+		$vals = array(
+		    'img_path'  => $this->config->item('root_path').'captcha/',
+		    'img_url'   => base_url().'captcha/',
+		    'font_path' => $this->config->item('root_path').'/font/SIMYOU.TTF',
+		    'img_width' => 150,
+		    'img_height'    => 40,
+		    'expiration'    => 200,
+		    'word_length'   => 4,
+		    'font_size' => 25,
+		    'img_id'    => 'Imageid',
+		    'pool'      => '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
 
+		    // White background and border, black text and red grid
+		    'colors'    => array(
+		        'background' => array(255, 255, 255),
+		        'border' => array(255, 255, 255),
+		        'text' => array(0, 0, 0),
+		        'grid' => array(0, 0, 0)
+		    )
+		);
+
+		$cap = create_captcha($vals);
 		$data = array(
 			'url'=>$url,
 			'path'=>$path,
+			'captcha'=>$cap,
 			);
 
 		$this->load->view('conf/conf',$data);
