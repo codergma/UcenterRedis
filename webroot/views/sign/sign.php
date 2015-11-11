@@ -99,12 +99,10 @@
           <div style="max-width:150px;position:relative;">
               <input type="text" class="form-control input-lg" name="signin-captcha"id="signup-captcha"
                required="required"placeholder="验证码" >
-              <div style="position:absolute; top:3px;left:160px;border:1px solid red;width:150px;height:40px;">
-                <img class="img-responsive"src="">
+              <div style="position:absolute; top:3px;left:160px;width:140px;height:40px;">
+                <?php echo $captcha['image'];?>
               </div>
           </div>
-    
-   
           <div class="checkbox" style="display:inline-block;">
             <label>
               <input type="checkbox" checked="checked" >
@@ -142,9 +140,13 @@
                required="required" placeholder="请输入密码">
             </div>
           </div>
-         <div  style="position:relative;top:-58px;left:320px;border:1px solid red;width:200px;height:40px;">
-            <img class="img-responsive"style=""src="">
-         </div> 
+          <div style="max-width:150px;position:relative;">
+              <input type="text" class="form-control input-lg" name="signin-captcha"id="signup-captcha"
+               required="required"placeholder="验证码" >
+              <div style="position:absolute; top:3px;left:160px;width:140px;height:40px;">
+                <?php echo $captcha['image'];?>
+              </div>
+          </div>
           <input type="submit" class="btn btn-success btn-lg btn-block text-center" id="btn-signup" value="注册">
         </form> 
       </div>

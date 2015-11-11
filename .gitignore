@@ -2,4 +2,5 @@
 vendor/*
 composer.lock
 application/logs/*
+webroot/captcha
 

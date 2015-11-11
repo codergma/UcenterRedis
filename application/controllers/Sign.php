@@ -21,7 +21,7 @@ class Sign extends CI_Controller{
 	public function __construct()
 	{
 		parent::__construct();
-		$helper = array('form','captcha');
+		$helper = array('form','captcha','url');
 		$lib    = array('CG_base','email');
 		$this->load->helper($helper);
 		$this->load->library($lib);
@@ -39,8 +39,10 @@ class Sign extends CI_Controller{
 		    header('location:/portal/index');
             return;
 		}
+		$cap = $this->gen_captcha();
+		$captcha = array('captcha'=>$cap);
 
-		$this->load->view('sign/sign');
+		$this->load->view('sign/sign',$captcha);
 	}
 	public function index_modify_passwd($flag)
 	{
@@ -390,18 +392,23 @@ class Sign extends CI_Controller{
 		}
 
 	}
-	//生成验证码图片
+	/**
+	 *　生成验证码图片，并讲验证码信息保存到redis的hash结构captcha中
+	 * 数据结构：　captcha 是hash类型,以客户端的ip作为field,验证码信息作value
+	 *
+	 *
+	*/
 	protected function gen_captcha()
 	{
 		$vals = array(
-	    'img_path'  => $this->config->item('root_path').'/captcha/',
+	    'img_path'  => $this->config->item('root_path').'captcha/',
 	    'img_url'   => base_url().'/captcha/',
-	    'font_path' => $this->config->item('root_path').'SIMYOU.TTF',
-	    'img_width' => 150,
-	    'img_height'=> 30,
-	    'expiration' => 7200,
-	    'word_length'=> 8,
-	    'font_size' => 16,
+	    'font_path' => $this->config->item('root_path').'font/SIMYOU.TTF',
+	    'img_width' => 140,
+	    'img_height'=> 40,
+	    'expiration' => 60,
+	    'word_length'=> 4,
+	    'font_size' => 25,
 	    'img_id'    => 'Imageid',
 	    'pool'      => '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
 
@@ -411,9 +418,11 @@ class Sign extends CI_Controller{
 	        'border' => array(255, 255, 255),
 	        'text' => array(0, 0, 0),
 	        'grid' => array(0, 0, 0)
-	    )
-	);
-	return $cap = create_captcha($vals);
+	    	)
+		);
+
+		$cap = create_captcha($vals);
+		return $cap;
 	}
 
 
