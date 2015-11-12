@@ -1,6 +1,6 @@
 <?php
 defined('BASEPATH') or die('No direct script access allowed');
-
+define('CAPTCHA_EXPIRE',60);
 class Sign extends CI_Controller{
 	private $redis = null;
 	private $error_msg = array(
@@ -61,13 +61,15 @@ class Sign extends CI_Controller{
 		$signup_email     = $this->input->post('signup-email');
 		$signup_username  = $this->input->post('signup-username');
 		$signup_password  = $this->input->post('signup-password');
+		$signup_captcha   = $this->input->post('signup-captcha');
 
 		//输入信息过滤
-		$email = addslashes(trim($signup_email));
-		$username    = addslashes(trim($signup_username));
-		$password = addslashes(trim($signup_password));
+		$email     = addslashes(trim($signup_email));
+		$username  = addslashes(trim($signup_username));
+		$password  = addslashes(trim($signup_password));
+        $captcha   = strtolower($signup_captcha);
 
-        if(!$this->validate_signup($email,$username,$password))
+        if(!$this->validate_signup($email,$username,$password,$captcha))
         {
         	return false;
         }
@@ -78,7 +80,7 @@ class Sign extends CI_Controller{
 		$this->cg_base->echo_json($result,"success");
 	}
 
-    /**
+    /*
 	*用户名和口令：
 			正则表达式限制用户输入口令；
 			密码加密保存 md5(md5(passwd+salt))；
@@ -127,8 +129,9 @@ class Sign extends CI_Controller{
 	{
 		$signin_username   = addslashes(trim($this->input->post('signin-username')));
 		$signin_password   = addslashes(trim($this->input->post('signin-password')));
+		$signin_captcha    = strtolower($this->input->post('signin-captcha'));
 
-		$validation = $this->validate_signin($signin_username,$signin_password);
+		$validation = $this->validate_signin($signin_username,$signin_password,$signin_captcha);
 		if (!$validation)
 		{
 			return ;
@@ -259,7 +262,7 @@ class Sign extends CI_Controller{
 	}
 
 	//验证注册数据是否合法
-	protected function validate_signup($email,$username,$password)
+	protected function validate_signup($email,$username,$password,$captcha)
 	{
 		if (empty($email))
 		{
@@ -271,7 +274,7 @@ class Sign extends CI_Controller{
 			$this->cg_base->echo_json(-9,$this->error_msg[-9]);
 			return false;
 		}
-		if(!$this->validate_signin($username,$password))
+		if(!$this->validate_signin($username,$password,$captcha))
 		{
 			return false;
 		}
@@ -287,10 +290,11 @@ class Sign extends CI_Controller{
 			$this->cg_base->echo_json(-11,$this->error_msg[-11]);
 			return false;
 		}
+		
 		return true;
 	}
 	//检查用户登录数据合法性
-	protected function validate_signin($username,$password)
+	protected function validate_signin($username,$password,$captcha)
 	{
 		if (empty($username))
 		{
@@ -310,6 +314,15 @@ class Sign extends CI_Controller{
 		if (!$this->check_password_formate($password))
 		{
 			$this->cg_base->echo_json(-4,$this->error_msg[-4]);
+			return false;
+		}
+		//检查验证码是否正确
+		$ip = $this->cg_base->real_ip();
+		$word = $this->redis->hget($ip,'word');
+
+		if(strtolower($word) !== $captcha)
+		{
+			$this->cg_base->echo_json(-12,$this->error_msg[-12]);
 			return false;
 		}
 		return true;
@@ -393,10 +406,10 @@ class Sign extends CI_Controller{
 
 	}
 	/**
-	 *　生成验证码图片，并讲验证码信息保存到redis的hash结构captcha中
-	 * 数据结构：　captcha 是hash类型,以客户端的ip作为field,验证码信息作value
-	 *
-	 *
+	 *　生成验证码图片，并将验证码信息保存到redis的hash结构中
+	 * 数据结构：　ip是key,
+	 * word作为filed,验证码内容作value,记录验证码字符串
+	 * times作为filed,次数作为value,记录次ip尝试获取验证码次数
 	*/
 	private function _gen_captcha()
 	{
@@ -422,9 +435,21 @@ class Sign extends CI_Controller{
 		);
 
 		$cap = create_captcha($vals);
+		//写入redis
+		$ip = $this->cg_base->real_ip();
+		if(!$this->redis->hExists($ip,'word'))
+		{
+			$this->redis->hmset($ip,array('word'=>$cap['word'],'times'=>1));
+		}
+		else
+		{
+			$this->redis->expire($ip,CAPTCHA_EXPIRE);
+			$this->redis->hset($ip,'word',$cap['word']);
+			$this->redis->hIncrBy($ip,'times',1);
+		}
 		return $cap;
 	}
-	//对外接口
+	//生成验证码对外接口
 	public function gen_captcha()
 	{
 		$cap = $this->_gen_captcha();

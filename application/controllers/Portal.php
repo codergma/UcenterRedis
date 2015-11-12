@@ -6,12 +6,11 @@ class Portal extends CI_Controller{
 	public function __construct()
 	{
 		parent::__construct();
+		$helper = array('form','url','url_helper');
 		$this->load->model('portal_model');
-		$this->load->model('sign_model');
-		$this->load->helper('form','url','url_helper');
+		$this->load->helper($helper);
         $this->load->library('CG_base');
-        $this->redis = new Redis();
-        $this->redis->connect(REDIS_ADDR,REDIS_PORT);
+        $this->redis = $this->cg_base->get_redis();
 	}
 
 	public function index()
@@ -24,6 +23,6 @@ class Portal extends CI_Controller{
 				return;
 			}
 		}
-		$this->load->view('sign/sign');
+		redirect('sign/index');
 	}
 }

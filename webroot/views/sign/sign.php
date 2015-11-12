@@ -151,7 +151,6 @@
               <input type="text" class="form-control input-lg" name="signup-captcha"id="signup-captcha"
                required="required"placeholder="验证码" >
               <div id='signup-cap-container'style="position:absolute; top:3px;left:160px;width:140px;height:40px;">
-                <?php echo $captcha['image'];?>
               </div>
           </div>
         <a id='signup-gen-cap'href="javaScript:void(0);">看不清楚？换一张</a>
@@ -190,12 +189,14 @@
         $('#link-signup').css('color',"#777");
         $('#signin').show();
         $('#signup').hide();
+        gen_captcha('#signin-cap-container');
       });
       $("#link-signup").on('click',function(){
         $(this).css('color','#000');
         $('#link-signin').css('color',"#777");
         $('#signup').show();
         $('#signin').hide();
+        gen_captcha('#signup-cap-container');
       });
       // jquery.form.js插件发送登录请求
       $("#signin").ajaxForm({
@@ -211,6 +212,7 @@
             {
               $("#error-msg p").remove();
               $('#error-msg').append("<p>"+result.msg+"</p>").show();
+              gen_captcha('#signin-cap-container');
             }
         }
       });
@@ -228,6 +230,7 @@
           {
               $("#error-msg p").remove();
               $('#error-msg').append("<p>"+result.msg+"</p>").show();
+              gen_captcha('#signup-cap-container');
           }
         }
       });
