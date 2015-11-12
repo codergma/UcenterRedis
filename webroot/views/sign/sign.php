@@ -181,22 +181,57 @@
     <script src="/jquery/jquery.form.js"></script>
     <script src="/bootstrap/js/bootstrap.min.js"></script>
     <script type="text/javascript">
-    $(document).ready(function(){
+  //获取验证码
+    function genCaptcha(id)
+    {
+      var url = "<?php echo base_url('sign/gen_captcha');?>";
+      $.ajax({
+        "url":url,
+        "type":'post',
+        "dataType":'json',
+        "success":function(result){
+          if (result.status){
+           var image = result.data.image; 
+           $(id+" img").remove();
+           $(id).append(image);
+          };
+        }
+      });
+    }
+    //注册成功倒计时函数
+    var interval_hd;
+    var interval = 5
+    function setRemainTime()
+    {
+      if (interval > 0)
+      {
+        interval--;
+        $('#error-msg p').html("注册成功，"+interval+"s后跳转到登录页面");
+      }
+      else
+      {
+        window.clearInterval(interval_hd);
+        window.location.reload();
+      }
+    }
 
+    $(document).ready(function(){
       //切换登录和注册页面
       $("#link-signin").on('click',function(){
         $(this).css('color','#000');
         $('#link-signup').css('color',"#777");
         $('#signin').show();
         $('#signup').hide();
-        gen_captcha('#signin-cap-container');
+        $("#error-msg").hide();
+        genCaptcha('#signin-cap-container');
       });
       $("#link-signup").on('click',function(){
         $(this).css('color','#000');
         $('#link-signin').css('color',"#777");
         $('#signup').show();
         $('#signin').hide();
-        gen_captcha('#signup-cap-container');
+        $("#error-msg").hide();
+        genCaptcha('#signup-cap-container');
       });
       // jquery.form.js插件发送登录请求
       $("#signin").ajaxForm({
@@ -212,7 +247,7 @@
             {
               $("#error-msg p").remove();
               $('#error-msg').append("<p>"+result.msg+"</p>").show();
-              gen_captcha('#signin-cap-container');
+              genCaptcha('#signin-cap-container');
             }
         }
       });
@@ -223,14 +258,15 @@
         success:function(result){
           if ( result.status > 0)
            {
-              $("#error-msg").hide();
-              alert('success');
+              $("#error-msg p").remove();
+              $('#error-msg').append("<p>"+"注册成功，5s后跳转到登录页面"+"</p>").show();
+              interval_hd = window.setInterval("setRemainTime()",1000);
            }
           else
           {
               $("#error-msg p").remove();
               $('#error-msg').append("<p>"+result.msg+"</p>").show();
-              gen_captcha('#signup-cap-container');
+              genCaptcha('#signup-cap-container');
           }
         }
       });
@@ -253,31 +289,15 @@
       });
       //登录页面更换验证码图片
       $('#signin-gen-cap').on('click',function(){
-        gen_captcha('#signin-cap-container');
+        genCaptcha('#signin-cap-container');
       });
       //注册页面更换验证码图片
       $('#signup-gen-cap').on('click',function(){
-        gen_captcha('#signup-cap-container');
+        genCaptcha('#signup-cap-container');
       });
 
     });
-  //获取验证码
-  function gen_captcha(id)
-  {
-    var url = "<?php echo base_url('sign/gen_captcha');?>";
-    $.ajax({
-      "url":url,
-      "type":'post',
-      "dataType":'json',
-      "success":function(result){
-        if (result.status){
-         var image = result.data.image; 
-         $(id+" img").remove();
-         $(id).append(image);
-        };
-      }
-    });
-  }
+
     </script>
   }
   </body>
